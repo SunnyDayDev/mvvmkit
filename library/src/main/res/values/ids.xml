@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <item name="binding_recyclerview_items_adapter_info" type="id"/>
+
+    <item name="binding_view_focus" type="id"/>
+
+</resources>
