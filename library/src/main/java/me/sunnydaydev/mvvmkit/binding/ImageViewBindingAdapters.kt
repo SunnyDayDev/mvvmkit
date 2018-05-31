@@ -1,6 +1,7 @@
 package me.sunnydaydev.mvvmkit.binding
 
 import android.databinding.BindingAdapter
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.widget.ImageView
 import com.bumptech.glide.Glide
@@ -11,6 +12,12 @@ import com.bumptech.glide.Glide
  */
 
 object ImageViewBindingAdapters {
+
+    @JvmStatic
+    @BindingAdapter("imageDrawable")
+    fun bindImageDrawable(view: ImageView, drawable: Drawable?) {
+        view.setImageDrawable(drawable)
+    }
 
     @JvmStatic
     @BindingAdapter("imageUrl")

@@ -3,6 +3,6 @@
 
     <item name="binding_recyclerview_items_adapter_info" type="id"/>
 
-    <item name="binding_view_focus" type="id"/>
+    <item name="binding_view_focused" type="id"/>
 
 </resources>
