@@ -2,13 +2,18 @@ package me.sunnydaydev.mvvmkit.viewModel
 
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
+import dagger.MapKey
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlin.reflect.KClass
 
 /**
  * Created by sunny on 31.05.2018.
  * mail: mail@sunnydaydev.me
  */
+
+@MapKey
+annotation class ViewModelKey(val value: KClass<out ViewModel>)
 
 class InjectableViewModelFactory @Inject constructor(
         private val creators: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>
