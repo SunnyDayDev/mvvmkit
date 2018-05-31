@@ -8,7 +8,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import me.sunnydaydev.mvvmkit.viewModel.BaseViewModel
+import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
 
 /**
  * Created by sunny on 03.05.2018.
@@ -27,11 +27,11 @@ abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment()  {
                                            container: ViewGroup?,
                                            savedInstanceState: Bundle?): Binding
 
-    protected abstract fun getViewModel(provider: ViewModelProvider): BaseViewModel
+    protected abstract fun getViewModel(provider: ViewModelProvider): MVVMViewModel
 
     // endregion
 
-    private lateinit var vm: BaseViewModel
+    private lateinit var vm: MVVMViewModel
 
     @Suppress("MemberVisibilityCanBePrivate")
     protected var binding: Binding? = null

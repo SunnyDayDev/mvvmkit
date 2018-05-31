@@ -10,7 +10,7 @@ import javax.inject.Provider
  * mail: mail@sunnydaydev.me
  */
 
-class InjectableViewModelsMapFactory @Inject constructor(
+class InjectableViewModelFactory @Inject constructor(
         private val creators: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>
 ) : ViewModelProvider.Factory {
 

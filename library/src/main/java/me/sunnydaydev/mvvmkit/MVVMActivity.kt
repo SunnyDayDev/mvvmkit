@@ -5,7 +5,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.databinding.ViewDataBinding
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import me.sunnydaydev.mvvmkit.viewModel.BaseViewModel
+import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
 
 /**
  * Created by sunny on 03.05.2018.
@@ -22,11 +22,11 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: AppCompatActivity() {
 
     protected abstract val binding: Binding
 
-    protected abstract fun <T> getViewModel(provider: ViewModelProvider): T
+    protected abstract fun getViewModel(provider: ViewModelProvider): MVVMViewModel
 
     // endregion
 
-    private lateinit var vm: BaseViewModel
+    private lateinit var vm: MVVMViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +42,12 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         binding.unbind()
+    }
+
+    override fun onBackPressed() {
+        if (!vm.onBackPressed()) {
+            super.onBackPressed()
+        }
     }
 
 }
