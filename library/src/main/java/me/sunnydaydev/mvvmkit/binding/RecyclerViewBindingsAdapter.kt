@@ -50,7 +50,7 @@ object RecyclerViewBindingsAdapter {
         // Check not changed
         if (adapterInfo != null &&
                 adapterInfo.items.get() === items &&
-                adapterInfo.bindingMap.get() === bindingMap &&
+                adapterInfo.bindingMap.get() == bindingMap &&
                 adapterInfo.adapter.get()?.let { it === view.adapter } == true) {
             return
         }
@@ -78,7 +78,7 @@ object RecyclerViewBindingsAdapter {
                 this(WeakReference(adapter) ,WeakReference(items), WeakReference(map))
     }
 
-    class BindingMap (map: Map<KClass<out Any>, Item> = emptyMap()) {
+    class BindingMap (private val id: Int, map: Map<KClass<out Any>, Item> = emptyMap()) {
 
         internal val map = map.toMutableMap()
 
@@ -96,6 +96,14 @@ object RecyclerViewBindingsAdapter {
                 val variable: Int,
                 val layout: Int
         )
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            other as? BindingMap ?: return false
+            return id == other.id
+        }
+
+        override fun hashCode(): Int = id.hashCode()
 
     }
 
