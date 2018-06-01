@@ -83,12 +83,12 @@ object RecyclerViewBindingsAdapter {
         internal val map = map.toMutableMap()
 
         inline fun <reified T: Any> map(variable: Int, layout: Int): BindingMap {
-            map(T::class, layout, variable)
+            map(T::class, variable = variable, layout = layout)
             return this
         }
 
         fun <T: Any> map(clazz: KClass<T>, variable: Int, layout: Int): BindingMap {
-            map[clazz] = Item(variable, layout)
+            map[clazz] = Item(variable = variable, layout = layout)
             return this
         }
 
