@@ -5,7 +5,7 @@ import android.databinding.InverseBindingAdapter
 import android.databinding.InverseBindingListener
 import android.view.MotionEvent
 import android.view.View
-import me.sunnydaydev.mvvmkit.observable.TargetedCommand
+import me.sunnydaydev.mvvmkit.observable.TargetedPureCommand
 
 /**
  * Created by sunny on 30.05.2018.
@@ -51,8 +51,8 @@ object ViewBindingAdapters {
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["focusCommand", "focusValue"])
-    fun <T: Any> bindFocus(view: View, focus: TargetedCommand<T>, target: T) {
+    @BindingAdapter(value = ["focusCommand", "focusTarget"])
+    fun <T: Any> bindFocusCommand(view: View, focus: TargetedPureCommand<T>, target: T) {
 
         focus.handle(target) {
             view.requestFocus()

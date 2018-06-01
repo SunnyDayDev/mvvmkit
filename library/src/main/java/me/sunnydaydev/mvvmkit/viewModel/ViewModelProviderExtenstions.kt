@@ -9,4 +9,6 @@ import kotlin.reflect.KClass
  * mail: mail@sunnydaydev.me
  */
 
+inline operator fun <reified T: ViewModel> ViewModelProvider.invoke(): T = this[T::class]
+
 operator fun <T: ViewModel> ViewModelProvider.get(clazz: KClass<T>): T = this[clazz.java]

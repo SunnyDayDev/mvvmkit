@@ -2,6 +2,7 @@ package me.sunnydaydev.mvvmkit
 
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
 import android.databinding.ViewDataBinding
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -36,6 +37,11 @@ abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment()  {
     @Suppress("MemberVisibilityCanBePrivate")
     protected var binding: Binding? = null
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        proceedInjection()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         vm = getViewModel(ViewModelProviders.of(this, viewModelFactory))
@@ -54,6 +60,10 @@ abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment()  {
         super.onDestroyView()
         binding?.unbind()
         binding = null
+    }
+
+    protected open fun proceedInjection() {
+        // no-op
     }
 
 }

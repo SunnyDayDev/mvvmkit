@@ -30,6 +30,7 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        proceedInjection()
         onViewModelCreate(savedInstanceState)
     }
 
@@ -37,6 +38,10 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: AppCompatActivity() {
         vm = getViewModel(ViewModelProviders.of(this, viewModelFactory))
         binding.setVariable(viewModelVariableId, vm)
         lifecycle.addObserver(vm)
+    }
+
+    protected open fun proceedInjection() {
+        // no-op
     }
 
     override fun onDestroy() {
