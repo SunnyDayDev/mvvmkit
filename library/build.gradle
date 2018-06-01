@@ -40,11 +40,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:recyclerview-v7:27.1.1'
-
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.14'
-    implementation 'me.sunnydaydev:modern-rx:1.0.0@aar'
+    api 'com.android.support:appcompat-v7:27.1.1'
+    api 'com.android.support:recyclerview-v7:27.1.1'
 
     implementation 'com.github.bumptech.glide:glide:4.7.1'
 

@@ -7,49 +7,83 @@ import android.databinding.BaseObservable
  * mail: mail@sunnydaydev.me
  */
 
+object Event
 
-internal sealed class Event<T>{
-    class Empty<T>: Event<T>()
-    data class Value<T>(val value: T): Event<T>()
+internal sealed class OptionalBox<T>{
+    class Empty<T>: OptionalBox<T>()
+    data class Value<T>(val value: T): OptionalBox<T>()
 }
 
-open class Command<T>: BaseObservable() {
+open class BaseCommand<T>: BaseObservable() {
 
-    // Simple event
-    object Fire
+    internal var event: OptionalBox<T> = OptionalBox.Empty()
 
-    private var event: Event<T> = Event.Empty()
-
-    fun fire(event: T) {
-        this.event = Event.Value(event)
+    protected fun internalFire(event: T) {
+        this.event = OptionalBox.Value(event)
         notifyChange()
     }
 
-    fun handle(action: (T) -> Unit) {
+    protected fun internalHandle(handleAction: (T) -> Boolean) {
         val event = this.event
-        if (event is Event.Value) {
-            action(event.value)
+        if (event is OptionalBox.Value && handleAction(event.value)) {
+            clear()
         }
-        this.event = Event.Empty()
+    }
+
+    fun clear() {
+        event = OptionalBox.Empty()
     }
 
 }
 
-class CommandWithCheck<T: Any>: BaseObservable() {
+class PureCommand: BaseCommand<Event>() {
 
-    private var event: Event<T> = Event.Empty()
+    fun fire() = internalFire(Event)
 
-    fun fire(event: T) {
-        this.event = Event.Value(event)
-        notifyChange()
+    fun handle(action: () -> Unit) = internalHandle {
+        action()
+        true
     }
 
-    fun handle(check: T, action: () -> Unit) {
-        val event = this.event
-        if (event is Event.Value && check == event.value) {
+}
+
+class Command<T>: BaseCommand<T>() {
+
+    fun fire(event: T) = internalFire(event)
+
+    fun handle(action: (T) -> Unit) = internalHandle {
+        action(it)
+        true
+    }
+
+}
+
+class TargetedCommand<E, T: Any>: BaseCommand<Pair<E, T>>() {
+
+    fun fire(event: E, target: T) = internalFire(event to target)
+
+    fun handle(target: T, action: (E) -> Unit) = internalHandle {
+        if (target == it.second) {
+            action(it.first)
+            true
+        } else {
+            false
+        }
+    }
+
+}
+
+class TargetedPureCommand<T: Any>: BaseCommand<T>() {
+
+    fun fire(target: T) = internalFire(target)
+
+    fun handle(target: T, action: () -> Unit) = internalHandle {
+        if (target == it) {
             action()
+            true
+        } else {
+            false
         }
-        this.event = Event.Empty()
     }
 
 }

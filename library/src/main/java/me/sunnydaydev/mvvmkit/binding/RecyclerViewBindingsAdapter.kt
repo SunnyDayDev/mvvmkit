@@ -5,7 +5,7 @@ import android.databinding.adapters.ListenerUtil
 import android.support.v7.widget.RecyclerView
 import com.github.nitrico.lastadapter.LastAdapter
 import me.sunnydaydev.mvvmkit.R
-import me.sunnydaydev.mvvmkit.observable.Command
+import me.sunnydaydev.mvvmkit.observable.PureCommand
 import java.lang.ref.WeakReference
 import kotlin.reflect.KClass
 
@@ -18,7 +18,7 @@ object RecyclerViewBindingsAdapter {
 
     @JvmStatic
     @BindingAdapter("scrollToPosition")
-    fun bindScrollToPosition(view: RecyclerView, position: Command<Int>) {
+    fun bindScrollToPosition(view: RecyclerView, position: PureCommand<Int>) {
         position.handle(view::scrollToPosition)
     }
 

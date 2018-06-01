@@ -5,7 +5,7 @@ import android.databinding.InverseBindingAdapter
 import android.databinding.InverseBindingListener
 import android.view.MotionEvent
 import android.view.View
-import me.sunnydaydev.mvvmkit.observable.CommandWithCheck
+import me.sunnydaydev.mvvmkit.observable.TargetedCommand
 
 /**
  * Created by sunny on 30.05.2018.
@@ -52,7 +52,7 @@ object ViewBindingAdapters {
 
     @JvmStatic
     @BindingAdapter(value = ["focusCommand", "focusValue"])
-    fun <T: Any> bindFocus(view: View, focus: CommandWithCheck<T>, target: T) {
+    fun <T: Any> bindFocus(view: View, focus: TargetedCommand<T>, target: T) {
 
         focus.handle(target) {
             view.requestFocus()
