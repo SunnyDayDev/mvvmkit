@@ -2,6 +2,7 @@
 <resources>
 
     <item name="binding_recyclerview_items_adapter_info" type="id"/>
+    <item name="binding_recyclerview_touch_item_helper" type="id"/>
 
     <item name="binding_view_focused" type="id"/>
 

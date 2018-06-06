@@ -3,6 +3,7 @@ package me.sunnydaydev.mvvmkit.binding
 import android.databinding.BindingAdapter
 import android.databinding.adapters.ListenerUtil
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.helper.ItemTouchHelper
 import com.github.nitrico.lastadapter.LastAdapter
 import me.sunnydaydev.mvvmkit.R
 import me.sunnydaydev.mvvmkit.observable.Command
@@ -66,6 +67,120 @@ object RecyclerViewBindingsAdapter {
         adapterInfo = AdapterInfo(adapter, items, bindingMap)
 
         ListenerUtil.trackListener(view, adapterInfo, R.id.binding_recyclerview_items_adapter_info)
+
+    }
+
+    @JvmStatic
+    @BindingAdapter(
+            value = [
+                "recyclerView_onItemMoved",
+                "recyclerView_onItemActionStateChanged",
+                "recyclerView_canItemDropOver"
+            ],
+            requireAll = false
+    )
+    fun bindItemMovedListener(
+            view: RecyclerView,
+            movedCallback: OnTouchItemMovedCallback?,
+            actionStateCallback: OnTouchItemActionStateCallback?,
+            dropOverCallback: OnTouchItemCanDropOverCallback?
+    ) {
+
+        ListenerUtil.getListener<ItemTouchHelper>(
+                view, R.id.binding_recyclerview_touch_item_helper
+        )?.attachToRecyclerView(null)
+        ListenerUtil.trackListener(view, null, R.id.binding_recyclerview_touch_item_helper)
+
+        if (movedCallback == null && actionStateCallback == null && dropOverCallback == null) {
+            return
+        }
+
+        val itemTouchCallback = object : ItemTouchHelper.Callback() {
+
+            override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+                val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
+                return makeMovementFlags(dragFlags, 0)
+            }
+
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                return movedCallback?.onItemMoved(viewHolder.adapterPosition, target.adapterPosition) ?: true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+
+            }
+
+            override fun canDropOver(recyclerView: RecyclerView, current: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                return dropOverCallback?.canDropOver(current.adapterPosition, target.adapterPosition) ?: true
+            }
+
+            override fun isLongPressDragEnabled(): Boolean = true
+
+            override fun isItemViewSwipeEnabled(): Boolean = false
+
+            override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+                super.onSelectedChanged(viewHolder, actionState)
+
+                viewHolder ?: return
+
+                actionStateCallback?.onItemSelectionChanged(
+                        viewHolder.adapterPosition,
+                        ItemTouchActionState.parse(actionState)
+                )
+
+            }
+
+            override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+                super.clearView(recyclerView, viewHolder)
+
+                actionStateCallback?.onItemSelectionChanged(
+                        viewHolder.adapterPosition,
+                        ItemTouchActionState.IDLE
+                )
+
+            }
+
+        }
+
+        val helper = ItemTouchHelper(itemTouchCallback)
+
+        ListenerUtil.trackListener(view, helper, R.id.binding_recyclerview_touch_item_helper)
+
+        helper.attachToRecyclerView(view)
+
+    }
+
+    interface OnTouchItemMovedCallback {
+
+        fun onItemMoved(fromIndex: Int, toIndex: Int): Boolean
+
+    }
+
+    interface OnTouchItemActionStateCallback {
+
+        fun onItemSelectionChanged(position: Int, type: ItemTouchActionState)
+
+    }
+
+    interface OnTouchItemCanDropOverCallback {
+
+        fun canDropOver(current: Int, target: Int): Boolean
+
+    }
+
+    enum class ItemTouchActionState {
+
+        DRAG, SWIPE, IDLE;
+
+        internal companion object {
+
+            fun parse(action: Int): ItemTouchActionState = when(action) {
+                ItemTouchHelper.ACTION_STATE_DRAG -> DRAG
+                ItemTouchHelper.ACTION_STATE_SWIPE -> SWIPE
+                else -> IDLE
+            }
+
+        }
 
     }
 
