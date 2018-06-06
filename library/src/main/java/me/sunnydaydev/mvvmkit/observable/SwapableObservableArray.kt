@@ -6,9 +6,9 @@ package me.sunnydaydev.mvvmkit.observable
  * mail: mail@sunnydaydev.me
  */
 
-class SwapableObservableList<T>: ExtendedObservableArrayList<T>() {
+open class SwapableObservableList<T>: ExtendedObservableArrayList<T>() {
 
-    fun move(fromIndex: Int, toIndex: Int) {
+    fun move(fromIndex: Int, toIndex: Int, notify: Boolean = true) {
 
         if (fromIndex == toIndex) return
 
@@ -16,19 +16,23 @@ class SwapableObservableList<T>: ExtendedObservableArrayList<T>() {
             add(toIndex, removeAt(fromIndex, false), false)
         }
 
-        notifyMoved(fromIndex, toIndex, 1)
+        if (notify) {
+            notifyMoved(fromIndex, toIndex, 1)
+        }
 
     }
 
-    fun swap(fromIndex: Int, toIndex: Int) {
+    fun swap(fromIndex: Int, toIndex: Int, notify: Boolean = true) {
 
         synchronized(this) {
             add(toIndex, removeAt(fromIndex, false), false)
             add(fromIndex, removeAt(toIndex + 1, false), false)
         }
 
-        notifyMoved(fromIndex, toIndex, 1)
-        notifyMoved(toIndex + 1, fromIndex, 1)
+        if (notify) {
+            notifyMoved(fromIndex, toIndex, 1)
+            notifyMoved(toIndex + 1, fromIndex, 1)
+        }
 
     }
 
