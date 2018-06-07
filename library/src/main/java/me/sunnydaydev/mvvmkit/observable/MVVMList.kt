@@ -2,6 +2,7 @@ package me.sunnydaydev.mvvmkit.observable
 
 import androidx.databinding.ListChangeRegistry
 import androidx.databinding.ObservableList
+import kotlin.math.max
 
 /**
  * Created by sunny on 31.05.2018.
@@ -16,10 +17,14 @@ interface MVVMList<T>: ObservableList<T> {
 
 }
 
-open class MVVMArrayList<T>: ArrayList<T>(), MVVMList<T> {
+open class MVVMArrayList<T>(): ArrayList<T>(), MVVMList<T> {
 
     @Transient
     private var listeners: ListChangeRegistry = ListChangeRegistry()
+
+    constructor(vararg items: T): this() {
+        notifiableAddAll(items.toList(), false)
+    }
 
     override fun addOnListChangedCallback(listener: ObservableList.OnListChangedCallback<out ObservableList<T>>) {
         listeners.add(listener)
@@ -30,7 +35,7 @@ open class MVVMArrayList<T>: ArrayList<T>(), MVVMList<T> {
     }
 
     override fun add(element: T): Boolean {
-        notifiableAdd(size -1, element)
+        notifiableAdd(max(0, size -1), element)
         return true
     }
 
