@@ -37,7 +37,7 @@ class MergedMVVMList<T>(private vararg val lists: MVVMList<T>): MVVMList<T> {
 
         private fun getFixedIndex(list: MVVMList<T>, index: Int): Int {
             val listIndex = lists.indexOf(list)
-            return (0 until listIndex).sumBy { lists[it].lastIndex } + index
+            return (0 until listIndex).sumBy { lists[it].size } + index
         }
 
     }
@@ -129,7 +129,7 @@ class MergedMVVMList<T>(private vararg val lists: MVVMList<T>): MVVMList<T> {
         return lists.find {
 
             val containIndex = index >= indexOffset && index <= it.lastIndex + indexOffset
-            indexOffset += it.lastIndex
+            indexOffset += it.size
 
             containIndex
 
