@@ -1,9 +1,9 @@
 package me.sunnydaydev.mvvmkit.observable
 
-import android.databinding.BaseObservable
-import android.databinding.Bindable
-import android.databinding.Observable
-import android.databinding.PropertyChangeRegistry
+import androidx.databinding.BaseObservable
+import androidx.databinding.Bindable
+import androidx.databinding.Observable
+import androidx.databinding.PropertyChangeRegistry
 
 /**
  * Created by sunny on 31.05.2018.

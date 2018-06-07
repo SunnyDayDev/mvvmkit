@@ -1,11 +1,11 @@
 package me.sunnydaydev.mvvmkit.binding
 
-import android.databinding.BindingAdapter
+import androidx.databinding.BindingAdapter
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.widget.ImageView
 import com.bumptech.glide.Glide
-import android.databinding.BindingConversion
+import androidx.databinding.BindingConversion
 import android.graphics.Bitmap
 import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.request.RequestOptions

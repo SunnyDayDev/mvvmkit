@@ -1,6 +1,6 @@
 package me.sunnydaydev.mvvmkit.observable
 
-import android.databinding.BaseObservable
+import androidx.databinding.BaseObservable
 
 /**
  * Created by sunny on 31.05.2018.

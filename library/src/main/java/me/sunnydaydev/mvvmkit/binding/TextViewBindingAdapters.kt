@@ -1,6 +1,6 @@
 package me.sunnydaydev.mvvmkit.binding
 
-import android.databinding.BindingAdapter
+import androidx.databinding.BindingAdapter
 import android.view.KeyEvent
 import android.view.View
 import android.widget.TextView

@@ -1,8 +1,8 @@
 package me.sunnydaydev.mvvmkit.viewModel
 
-import android.arch.lifecycle.LifecycleObserver
-import android.arch.lifecycle.ViewModel
-import android.databinding.Observable
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.ViewModel
+import androidx.databinding.Observable
 import me.sunnydaydev.mvvmkit.observable.NotifiableObservable
 
 /**

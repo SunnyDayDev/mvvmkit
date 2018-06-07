@@ -1,9 +1,9 @@
 package me.sunnydaydev.mvvmkit.binding
 
-import android.databinding.BindingAdapter
-import android.databinding.adapters.ListenerUtil
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
+import androidx.databinding.BindingAdapter
+import androidx.databinding.adapters.ListenerUtil
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.github.nitrico.lastadapter.LastAdapter
 import me.sunnydaydev.mvvmkit.R
 import me.sunnydaydev.mvvmkit.observable.Command
@@ -97,20 +97,20 @@ object RecyclerViewBindingsAdapter {
 
         val itemTouchCallback = object : ItemTouchHelper.Callback() {
 
-            override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+            override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder): Int {
                 val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
                 return makeMovementFlags(dragFlags, 0)
             }
 
-            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, target: androidx.recyclerview.widget.RecyclerView.ViewHolder): Boolean {
                 return movedCallback?.onItemMoved(viewHolder.adapterPosition, target.adapterPosition) ?: true
             }
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            override fun onSwiped(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, direction: Int) {
 
             }
 
-            override fun canDropOver(recyclerView: RecyclerView, current: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+            override fun canDropOver(recyclerView: RecyclerView, current: androidx.recyclerview.widget.RecyclerView.ViewHolder, target: androidx.recyclerview.widget.RecyclerView.ViewHolder): Boolean {
                 return dropOverCallback?.canDropOver(current.adapterPosition, target.adapterPosition) ?: true
             }
 
@@ -118,7 +118,7 @@ object RecyclerViewBindingsAdapter {
 
             override fun isItemViewSwipeEnabled(): Boolean = false
 
-            override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+            override fun onSelectedChanged(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder?, actionState: Int) {
                 super.onSelectedChanged(viewHolder, actionState)
 
                 viewHolder ?: return
@@ -130,7 +130,7 @@ object RecyclerViewBindingsAdapter {
 
             }
 
-            override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+            override fun clearView(recyclerView: RecyclerView, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder) {
                 super.clearView(recyclerView, viewHolder)
 
                 actionStateCallback?.onItemSelectionChanged(
