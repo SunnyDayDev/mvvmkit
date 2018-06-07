@@ -17,11 +17,11 @@ fun Intent.makeRestartActivityTask(): Intent {
 
 }
 
-inline fun <reified T: Context> createIntent(config: Intent.() -> Unit = { }) : Intent {
+inline fun <reified T: Context> createIntent(pkg: String, config: Intent.() -> Unit = { }) : Intent {
     return Intent()
-            .setComponent(componentName(T::class.java))
+            .setComponent(componentName(pkg, T::class.java))
             .apply(config)
 }
 
-fun componentName(klass: Class<*>): ComponentName =
-        ComponentName("com.medicine.ima", klass.name)
+fun componentName(pkg: String, klass: Class<*>): ComponentName =
+        ComponentName(pkg, klass.name)

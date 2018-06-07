@@ -1,9 +1,9 @@
 package me.sunnydaydev.mvvmkit.util
 
 import android.app.Activity
-import android.databinding.DataBindingUtil
-import android.databinding.ViewDataBinding
-import android.support.annotation.LayoutRes
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
+import androidx.annotation.LayoutRes
 
 /**
  * Created by sunny on 24.05.2018.

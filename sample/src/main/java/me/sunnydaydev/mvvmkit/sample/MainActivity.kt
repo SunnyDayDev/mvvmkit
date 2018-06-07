@@ -1,6 +1,6 @@
 package me.sunnydaydev.mvvmkit.sample
 
-import android.arch.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider
 import me.sunnydaydev.mvvmkit.MVVMActivity
 import me.sunnydaydev.mvvmkit.sample.databinding.ActivityMainBinding
 import me.sunnydaydev.mvvmkit.util.setContentBinding
