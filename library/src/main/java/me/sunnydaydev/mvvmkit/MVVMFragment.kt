@@ -16,7 +16,7 @@ import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
  * mail: mail@sunnydaydev.me
  */
 
-abstract class MVVMFragment<Binding: ViewDataBinding>: androidx.fragment.app.Fragment()  {
+abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment()  {
 
     // region Abstract
 

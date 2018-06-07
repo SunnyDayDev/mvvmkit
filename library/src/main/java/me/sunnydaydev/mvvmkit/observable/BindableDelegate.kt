@@ -19,7 +19,7 @@ internal class BindableDelegate<in R: NotifiableObservable, T: Any?> (
         private val dataBindingFields by lazy<Map<String, Int>> {
 
             val clazz = try {
-                Class.forName("com.android.databinding.library.baseAdapters.BR")
+                Class.forName("androidx.databinding.library.baseAdapters.BR")
             } catch (e: Throwable) {
                 null
             } ?: return@lazy emptyMap()

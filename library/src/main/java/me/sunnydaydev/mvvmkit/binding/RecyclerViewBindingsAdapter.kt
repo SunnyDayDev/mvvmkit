@@ -19,7 +19,7 @@ object RecyclerViewBindingsAdapter {
 
     @JvmStatic
     @BindingAdapter("scrollToPosition")
-    fun bindScrollToPosition(view: androidx.recyclerview.widget.RecyclerView, position: Command<Int>) {
+    fun bindScrollToPosition(view: RecyclerView, position: Command<Int>) {
         position.handle(view::scrollToPosition)
     }
 
@@ -33,7 +33,7 @@ object RecyclerViewBindingsAdapter {
             requireAll = false
     )
     fun <T: Any> bindRecyclerViewItems(
-            view: androidx.recyclerview.widget.RecyclerView,
+            view: RecyclerView,
             items: List<T>?,
             bindingMap: BindingMap?,
             stableId: Boolean?
@@ -80,7 +80,7 @@ object RecyclerViewBindingsAdapter {
             requireAll = false
     )
     fun bindItemMovedListener(
-            view: androidx.recyclerview.widget.RecyclerView,
+            view: RecyclerView,
             movedCallback: OnTouchItemMovedCallback?,
             actionStateCallback: OnTouchItemActionStateCallback?,
             dropOverCallback: OnTouchItemCanDropOverCallback?
@@ -97,12 +97,12 @@ object RecyclerViewBindingsAdapter {
 
         val itemTouchCallback = object : ItemTouchHelper.Callback() {
 
-            override fun getMovementFlags(recyclerView: androidx.recyclerview.widget.RecyclerView, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder): Int {
+            override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder): Int {
                 val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
                 return makeMovementFlags(dragFlags, 0)
             }
 
-            override fun onMove(recyclerView: androidx.recyclerview.widget.RecyclerView, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, target: androidx.recyclerview.widget.RecyclerView.ViewHolder): Boolean {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, target: androidx.recyclerview.widget.RecyclerView.ViewHolder): Boolean {
                 return movedCallback?.onItemMoved(viewHolder.adapterPosition, target.adapterPosition) ?: true
             }
 
@@ -110,7 +110,7 @@ object RecyclerViewBindingsAdapter {
 
             }
 
-            override fun canDropOver(recyclerView: androidx.recyclerview.widget.RecyclerView, current: androidx.recyclerview.widget.RecyclerView.ViewHolder, target: androidx.recyclerview.widget.RecyclerView.ViewHolder): Boolean {
+            override fun canDropOver(recyclerView: RecyclerView, current: androidx.recyclerview.widget.RecyclerView.ViewHolder, target: androidx.recyclerview.widget.RecyclerView.ViewHolder): Boolean {
                 return dropOverCallback?.canDropOver(current.adapterPosition, target.adapterPosition) ?: true
             }
 
@@ -130,7 +130,7 @@ object RecyclerViewBindingsAdapter {
 
             }
 
-            override fun clearView(recyclerView: androidx.recyclerview.widget.RecyclerView, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder) {
+            override fun clearView(recyclerView: RecyclerView, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder) {
                 super.clearView(recyclerView, viewHolder)
 
                 actionStateCallback?.onItemSelectionChanged(
