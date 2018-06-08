@@ -1,21 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout
+
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
+        <import type="me.sunnydaydev.mvvmkit.sample.MainActivityBindings"/>
+
         <variable
             name="vm"
-            type="me.sunnydaydev.mvvmkit.sample.MainActivityViewModel"/>
+            type="me.sunnydaydev.mvvmkit.sample.vm.MainActivityViewModel"/>
 
     </data>
 
     <androidx.constraintlayout.ConstraintLayout
+
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity">
+
 
         <com.mikhaellopez.circularimageview.CircularImageView
             android:id="@+id/logo"
@@ -43,6 +48,105 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@+id/colors"
+            recyclerView_items="@{vm.allItems}"
+            recyclerView_itemsLayoutMap="@{MainActivityBindings.colorsMap}"
+            tools:listitem="@layout/orange_list_item_layout"/>
+
+        <LinearLayout
+            android:id="@+id/colors"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <Button
+                android:id="@+id/orangeMinus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minWidth="48dp"
+                app:backgroundTint="@color/orange"
+                android:textColor="#eee"
+                android:text="-"
+                onClick="@{vm::removeOrange}"/>
+
+            <Button
+                android:id="@+id/orangePlus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minWidth="48dp"
+                app:backgroundTint="@color/orange"
+                android:textColor="#eee"
+                android:text="+"
+                onClick="@{vm::addOrange}" />
+
+            <Button
+                android:id="@+id/greenMinus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minWidth="48dp"
+                app:backgroundTint="@color/green"
+                android:textColor="#eee"
+                android:text="-"
+                onClick="@{vm::removeGreen}"/>
+
+            <Button
+                android:id="@+id/greenPlus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minWidth="48dp"
+                app:backgroundTint="@color/green"
+                android:textColor="#eee"
+                android:text="+"
+                onClick="@{vm::addGreen}" />
+
+            <Button
+                android:id="@+id/setGreen"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minWidth="48dp"
+                app:backgroundTint="@color/green"
+                android:textColor="#eee"
+                android:text="[1,2]\n[1..2]"
+                onClick="@{vm::setGreen}" />
+
+            <Button
+                android:id="@+id/blueMinus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minWidth="48dp"
+                app:backgroundTint="@color/blue"
+                android:textColor="#eee"
+                android:text="-"
+                onClick="@{vm::removeBlue}"/>
+
+            <Button
+                android:id="@+id/bluePlus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minWidth="48dp"
+                app:backgroundTint="@color/blue"
+                android:textColor="#eee"
+                android:text="+"
+                onClick="@{vm::addBlue}"/>
+
+
+        </LinearLayout>
+
 
     </androidx.constraintlayout.ConstraintLayout>
 

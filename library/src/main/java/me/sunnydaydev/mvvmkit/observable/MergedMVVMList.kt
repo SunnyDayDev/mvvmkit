@@ -8,7 +8,10 @@ import androidx.databinding.ObservableList
  * mail: mail@sunnydaydev.me
  */
 
-class MergedMVVMList<T>(private vararg val lists: MVVMList<T>): MVVMList<T> {
+class MergedMVVMList<T>(vararg lists: MVVMList<out T>): ImmutableMVVMList<T> {
+
+    @Suppress("UNCHECKED_CAST")
+    private val lists: List<MVVMList<T>> = lists.map { it as MVVMList<T> }
 
     @Transient
     private var listeners: ListChangeRegistry = ListChangeRegistry()
@@ -35,36 +38,41 @@ class MergedMVVMList<T>(private vararg val lists: MVVMList<T>): MVVMList<T> {
             listeners.notifyChanged(this@MergedMVVMList, getFixedIndex(sender, positionStart), itemCount)
         }
 
-        private fun getFixedIndex(list: MVVMList<T>, index: Int): Int {
-            val listIndex = lists.indexOf(list)
-            return (0 until listIndex).sumBy { lists[it].size } + index
-        }
+        private fun getFixedIndex(list: MVVMList<T>, index: Int): Int = getIndexOffset(list) + index
 
     }
 
     init {
-        lists.forEach { it.addOnListChangedCallback(childOnListChangedCallback) }
+        this.lists.forEach { it.addOnListChangedCallback(childOnListChangedCallback)}
     }
 
-    override fun move(fromIndex: Int, toIndex: Int) = notSupported()
-
-    override fun swap(fromIndex: Int, toIndex: Int) = notSupported()
-
-    override val size: Int
-        get() = lists.sumBy { it.size }
+    override val size: Int get() = lists.sumBy { it.size }
 
     override fun contains(element: T): Boolean = lists.any { it.contains(element) }
 
     override fun containsAll(elements: Collection<T>): Boolean = elements.all { contains(it) }
 
-    override fun get(index: Int): T =  getTargetList(index).let {
-        val checkedIndex = index - it.indexOffset
-        it.list[checkedIndex]
+    override fun get(index: Int): T {
+
+        return lists.find {
+
+            val offset = getIndexOffset(it)
+            index >= offset && index < offset + it.size
+
+        } ?.let {
+
+            val checkedIndex = index - getIndexOffset(it)
+            it[checkedIndex]
+
+        } ?: throw IndexOutOfBoundsException("Index: $index, size: $size")
+
     }
 
-    override fun indexOf(element: T): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun indexOf(element: T): Int = lists.find {  it.contains(element) }
+            ?.let { it.indexOf(element) + getIndexOffset(it) } ?: -1
+
+    override fun lastIndexOf(element: T): Int = lists.findLast {  it.contains(element) }
+            ?.let { it.indexOf(element) + getIndexOffset(it) } ?: -1
 
     override fun isEmpty(): Boolean = lists.all { it.isEmpty() }
 
@@ -76,74 +84,14 @@ class MergedMVVMList<T>(private vararg val lists: MVVMList<T>): MVVMList<T> {
         listeners.remove(listener)
     }
 
-    override fun iterator(): Iterator = Iterator()
+    override fun iterator(): ImmutableIteratorIterator = ImmutableIteratorIterator()
 
-    @Deprecated(message = "Merged list immutable",level = DeprecationLevel.HIDDEN)
-    override fun lastIndexOf(element: T): Int = notSupported()
-
-    @Deprecated(message = "Merged list immutable",level = DeprecationLevel.HIDDEN)
-    override fun add(element: T): Boolean = notSupported()
-
-    @Deprecated(message = "Merged list immutable",level = DeprecationLevel.HIDDEN)
-    override fun add(index: Int, element: T) = notSupported()
-
-    @Deprecated(message = "Merged list immutable",level = DeprecationLevel.HIDDEN)
-    override fun addAll(index: Int, elements: Collection<T>): Boolean = notSupported()
-
-    @Deprecated(message = "Merged list immutable",level = DeprecationLevel.HIDDEN)
-    override fun addAll(elements: Collection<T>): Boolean = notSupported()
-
-    @Deprecated(message = "Merged list immutable",level = DeprecationLevel.HIDDEN)
-    override fun clear() = notSupported()
-
-    @Deprecated(message = "Merged list immutable",level = DeprecationLevel.HIDDEN)
-    override fun listIterator(): MutableListIterator<T> = notSupported()
-
-    @Deprecated(message = "Merged list immutable",level = DeprecationLevel.HIDDEN)
-    override fun listIterator(index: Int): MutableListIterator<T> = notSupported()
-
-    @Deprecated(message = "Merged list immutable",level = DeprecationLevel.HIDDEN)
-    override fun remove(element: T): Boolean = notSupported()
-
-    @Deprecated(message = "Merged list immutable",level = DeprecationLevel.HIDDEN)
-    override fun removeAll(elements: Collection<T>): Boolean = notSupported()
-
-    @Deprecated(message = "Merged list immutable",level = DeprecationLevel.HIDDEN)
-    override fun removeAt(index: Int): T = notSupported()
-
-    @Deprecated(message = "Merged list immutable",level = DeprecationLevel.HIDDEN)
-    override fun retainAll(elements: Collection<T>): Boolean = notSupported()
-
-    @Deprecated(message = "Merged list immutable",level = DeprecationLevel.HIDDEN)
-    override fun set(index: Int, element: T): T = notSupported()
-
-    @Deprecated(message = "Merged list immutable",level = DeprecationLevel.HIDDEN)
-    override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> = notSupported()
-
-    private fun notSupported(): Nothing = error("Not supported")
-
-    private fun getTargetList(index: Int): TargetList<T> {
-
-        var indexOffset = 0
-
-        return lists.find {
-
-            val containIndex = index >= indexOffset && index <= it.lastIndex + indexOffset
-            indexOffset += it.size
-
-            containIndex
-
-        } ?.let {
-
-            TargetList(indexOffset, it)
-
-        } ?: throw IndexOutOfBoundsException("Index: $index, size: $size")
-
+    private fun getIndexOffset(list: MVVMList<T>): Int {
+        val listIndex = lists.indexOf(list)
+        return (0 until listIndex).sumBy { lists[it].size }
     }
 
-    private data class TargetList<T>(val indexOffset: Int, val list: MVVMList<T>)
-
-    inner class Iterator: MutableIterator<T> {
+    inner class ImmutableIteratorIterator: MutableIterator<T> {
 
         private var index = -1
 
@@ -151,8 +99,20 @@ class MergedMVVMList<T>(private vararg val lists: MVVMList<T>): MVVMList<T> {
 
         override fun next(): T = this@MergedMVVMList[+index]
 
-        @Deprecated(message = "Merged list immutable",level = DeprecationLevel.HIDDEN)
-        override fun remove() = notSupported()
+        @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
+        override fun remove() = throw IllegalStateException("Immutable")
+
+    }
+
+    class Builder<T> {
+
+        private val lists = mutableListOf<MVVMList<T>>()
+
+        fun add(list: MVVMList<T>): Builder<T> = this.also { lists.add(list) }
+
+        fun add(item: T): Builder<T> = this.also { lists.add(MVVMArrayList(item)) }
+
+        fun build(): MergedMVVMList<T> = MergedMVVMList(*lists.toTypedArray())
 
     }
 

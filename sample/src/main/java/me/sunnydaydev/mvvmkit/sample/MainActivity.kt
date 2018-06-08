@@ -3,6 +3,8 @@ package me.sunnydaydev.mvvmkit.sample
 import androidx.lifecycle.ViewModelProvider
 import me.sunnydaydev.mvvmkit.MVVMActivity
 import me.sunnydaydev.mvvmkit.sample.databinding.ActivityMainBinding
+import me.sunnydaydev.mvvmkit.sample.vm.MainActivityViewModel
+import me.sunnydaydev.mvvmkit.sample.vm.MainActivityViewModelFactory
 import me.sunnydaydev.mvvmkit.util.setContentBinding
 import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
 import me.sunnydaydev.mvvmkit.viewModel.get

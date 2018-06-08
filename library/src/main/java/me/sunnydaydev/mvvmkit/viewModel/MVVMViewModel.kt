@@ -28,4 +28,6 @@ abstract class MVVMViewModel: ViewModel(), LifecycleObserver, NotifiableObservab
 
     open fun onBackPressed(): Boolean = false
 
+    fun <T: MVVMViewModel> T.clearViewModel() = this.onCleared()
+
 }
