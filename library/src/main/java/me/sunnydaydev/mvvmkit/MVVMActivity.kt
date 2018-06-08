@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.databinding.ViewDataBinding
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import me.sunnydaydev.mvvmkit.util.ViewLifeCycle
 import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
 
 /**
@@ -22,6 +23,8 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: AppCompatActivity() {
 
     protected abstract val binding: Binding
 
+    protected open val viewLifeCycle: ViewLifeCycle? = null
+
     protected abstract fun getViewModel(provider: ViewModelProvider): MVVMViewModel
 
     // endregion
@@ -37,7 +40,7 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: AppCompatActivity() {
     protected open fun onViewModelCreate(savedInstanceState: Bundle?) {
         vm = getViewModel(ViewModelProviders.of(this, viewModelFactory))
         binding.setVariable(viewModelVariableId, vm)
-        lifecycle.addObserver(vm)
+        viewLifeCycle?.let(lifecycle::addObserver)
     }
 
     protected open fun proceedInjection() {

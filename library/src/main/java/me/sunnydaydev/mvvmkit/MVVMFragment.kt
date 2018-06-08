@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import me.sunnydaydev.mvvmkit.util.ViewLifeCycle
 import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
 
 /**
@@ -23,6 +24,8 @@ abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment()  {
     protected abstract val viewModelVariableId: Int
 
     protected abstract val viewModelFactory: ViewModelProvider.Factory
+
+    protected open val viewLifeCycle: ViewLifeCycle? = null
 
     protected abstract fun onCreateBinding(inflater: LayoutInflater,
                                            container: ViewGroup?,
@@ -45,7 +48,7 @@ abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment()  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         vm = getViewModel(ViewModelProviders.of(this, viewModelFactory))
-        lifecycle.addObserver(vm)
+        viewLifeCycle?.let(lifecycle::addObserver)
     }
 
     override fun onCreateView(inflater: LayoutInflater,

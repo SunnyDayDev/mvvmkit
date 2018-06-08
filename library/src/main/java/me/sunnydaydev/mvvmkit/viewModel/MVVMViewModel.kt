@@ -1,6 +1,5 @@
 package me.sunnydaydev.mvvmkit.viewModel
 
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
 import androidx.databinding.Observable
 import me.sunnydaydev.mvvmkit.observable.NotifiableObservable
@@ -10,7 +9,7 @@ import me.sunnydaydev.mvvmkit.observable.NotifiableObservable
  * mail: mail@sunnydaydev.me
  */
 
-abstract class MVVMViewModel: ViewModel(), LifecycleObserver, NotifiableObservable {
+abstract class MVVMViewModel: ViewModel(), NotifiableObservable {
 
     private val registry by lazy { NotifiableObservable.Registry(this) }
 
