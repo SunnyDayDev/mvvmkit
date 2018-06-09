@@ -13,7 +13,9 @@ interface MVVMList<T>: ObservableList<T> {
     fun move(fromIndex: Int, toIndex: Int)
 
     fun swap(fromIndex: Int, toIndex: Int)
-    
+
+    fun setAll(items: Collection<T>)
+
     fun setAll(items: Collection<T>, startIndex: Int, count: Int)
 
 }
@@ -64,6 +66,9 @@ interface ImmutableMVVMList<T>: MVVMList<T> {
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
     override fun swap(fromIndex: Int, toIndex: Int) = notSupported()
+
+    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
+    override fun setAll(items: Collection<T>) = notSupported()
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
     override fun setAll(items: Collection<T>, startIndex: Int, count: Int) = notSupported()
@@ -121,9 +126,11 @@ open class MVVMArrayList<T>(): ArrayList<T>(), MVVMList<T> {
     override fun move(fromIndex: Int, toIndex: Int) = notifiableMove(fromIndex, toIndex)
 
     override fun swap(fromIndex: Int, toIndex: Int) = notifiableSwap(fromIndex, toIndex)
+
+    override fun setAll(items: Collection<T>) = setAll(items, 0, size)
     
-    override fun setAll(items: Collection<T>, startIndex: Int, endIndex: Int) =
-            notifiableSetAll(items, startIndex, endIndex)
+    override fun setAll(items: Collection<T>, startIndex: Int, count: Int) =
+            notifiableSetAll(items, startIndex, count)
 
     protected fun notifiableClear(notify: Boolean = true) {
         val oldSize = size
