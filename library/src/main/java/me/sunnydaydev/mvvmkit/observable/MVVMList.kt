@@ -82,6 +82,8 @@ open class MVVMArrayList<T>(): ArrayList<T>(), MVVMList<T> {
     @Transient
     private var listeners: ListChangeRegistry = ListChangeRegistry()
 
+    private var notificationsEnabled = true
+
     constructor(vararg items: T): this() {
         notifiableAddAll(items.toList(), false)
     }
@@ -253,23 +255,31 @@ open class MVVMArrayList<T>(): ArrayList<T>(), MVVMList<T> {
     }
 
     protected fun notifyInserted(start: Int, count: Int) {
-        listeners.notifyInserted(this, start, count)
+        if (notificationsEnabled) listeners.notifyInserted(this, start, count)
     }
 
     protected fun notifyMoved(from: Int, to: Int, count: Int) {
-        listeners.notifyMoved(this, from, to, count)
+        if (notificationsEnabled) listeners.notifyMoved(this, from, to, count)
     }
 
     protected fun notifyRemoved(start: Int, count: Int) {
-        listeners.notifyRemoved(this, start, count)
+        if (notificationsEnabled) listeners.notifyRemoved(this, start, count)
     }
 
     protected fun notifyChanged() {
-        listeners.notifyChanged(this)
+        if (notificationsEnabled) listeners.notifyChanged(this)
     }
 
     protected fun notifyChanged(start: Int, count: Int) {
-        listeners.notifyChanged(this, start, count)
+        if (notificationsEnabled) listeners.notifyChanged(this, start, count)
+    }
+
+    protected fun silent(action: () -> Unit) {
+        synchronized(this) {
+            notificationsEnabled = false
+            action()
+            notificationsEnabled = true
+        }
     }
 
 }
