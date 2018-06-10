@@ -16,11 +16,25 @@
     </data>
 
     <androidx.constraintlayout.ConstraintLayout
-
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/bg_transition"
+        reverseTransitionBackground="@{true}"
+        transitionBackgroundCommand="@{vm.transitionCommand}"
+        transitionBackgroundDuration="@{1000}"
         tools:context=".MainActivity">
 
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            android:text="Transition drawable"
+            onClick="@{vm::onTransition}"/>
 
         <com.mikhaellopez.circularimageview.CircularImageView
             android:id="@+id/logo"

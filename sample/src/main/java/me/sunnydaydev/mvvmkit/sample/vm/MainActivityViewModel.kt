@@ -7,10 +7,7 @@ import io.reactivex.Completable
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import me.sunnydaydev.mvvmkit.observable.MVVMArrayList
-import me.sunnydaydev.mvvmkit.observable.MVVMList
-import me.sunnydaydev.mvvmkit.observable.MergedMVVMList
-import me.sunnydaydev.mvvmkit.observable.bindable
+import me.sunnydaydev.mvvmkit.observable.*
 import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
@@ -41,6 +38,8 @@ class MainActivityViewModel: MVVMViewModel() {
     }
 
     @get:Bindable var refreshing by bindable(false)
+
+    val transitionCommand = PureCommand()
 
     private val orangeFactory: ColorsFactory = OrangeViewModel.Factory()
     private val greenFactory: ColorsFactory  = GreenViewModel.Factory()
@@ -81,6 +80,10 @@ class MainActivityViewModel: MVVMViewModel() {
         val startIndex = min(1, greens.size)
         val count = min(2, greens.size - startIndex)
         greens.setAll(items, startIndex, count)
+    }
+
+    fun onTransition() {
+        transitionCommand.fire()
     }
 
     fun onRefresh() {
