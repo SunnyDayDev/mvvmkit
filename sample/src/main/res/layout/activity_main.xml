@@ -49,15 +49,25 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.recyclerview.widget.RecyclerView
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toTopOf="@+id/colors"
-            recyclerView_items="@{vm.allItems}"
-            recyclerView_itemsLayoutMap="@{MainActivityBindings.colorsMap}"
-            tools:listitem="@layout/orange_list_item_layout"/>
+            android:layout_height="128dp"
+            colorSchemeColors="@{@intArray/refreshLayoutColors}"
+            onRefresh="@{vm::onRefresh}"
+            refreshing="@{vm.refreshing}"
+            app:layout_constraintBottom_toTopOf="@+id/colors">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                android:orientation="horizontal"
+                recyclerView_items="@{vm.allItems}"
+                recyclerView_itemsLayoutMap="@{MainActivityBindings.colorsMap}"
+                tools:listitem="@layout/orange_list_item_layout"/>
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
 
         <LinearLayout
             android:id="@+id/colors"

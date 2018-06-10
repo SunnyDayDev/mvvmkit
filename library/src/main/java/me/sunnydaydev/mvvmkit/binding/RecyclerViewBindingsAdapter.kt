@@ -18,11 +18,23 @@ import kotlin.reflect.KClass
 
 object RecyclerViewBindingsAdapter {
 
+    // region Commands
+
     @JvmStatic
     @BindingAdapter("scrollToPosition")
     fun bindScrollToPosition(view: RecyclerView, position: Command<Int>) {
         position.handle(view::scrollToPosition)
     }
+
+    // endregion
+
+    // region Listeners
+
+
+
+    // endregion
+
+    // region Items
 
     @JvmStatic
     @BindingAdapter(
@@ -151,6 +163,10 @@ object RecyclerViewBindingsAdapter {
 
     }
 
+    // endregion
+
+    // region Classes
+
     interface OnTouchItemMovedCallback {
 
         fun onItemMoved(fromIndex: Int, toIndex: Int): Boolean
@@ -222,5 +238,7 @@ object RecyclerViewBindingsAdapter {
         override fun hashCode(): Int = id.hashCode()
 
     }
+
+    // endregion
 
 }
