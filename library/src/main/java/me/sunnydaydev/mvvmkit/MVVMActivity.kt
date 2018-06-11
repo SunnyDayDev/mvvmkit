@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.databinding.ViewDataBinding
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import me.sunnydaydev.mvvmkit.util.ViewLifeCycle
 import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
@@ -13,7 +14,34 @@ import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
  * mail: mail@sunnydaydev.me
  */
 
-abstract class MVVMActivity<Binding: ViewDataBinding>: AppCompatActivity() {
+abstract class BaseMVVMActivity: AppCompatActivity() {
+
+    private val onBackPressedListeners: MutableSet<OnBackPressedListener> =
+            sortedSetOf(Comparator { l1, l2 -> l2.prioritet.compareTo(l1.prioritet) })
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when(item.itemId) {
+        android.R.id.home -> onBackPressed().let { true }
+        else -> super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        val onBackPressedHandled = onBackPressedListeners.any { it.onBackPressed() }
+        if (!onBackPressedHandled) {
+            super.onBackPressed()
+        }
+    }
+
+    fun addOnBackPressedListener(listener: OnBackPressedListener) {
+        onBackPressedListeners.add(listener)
+    }
+
+    fun removeOnBackPressedListener(listener: OnBackPressedListener) {
+        onBackPressedListeners.remove(listener)
+    }
+
+}
+
+abstract class MVVMActivity<Binding: ViewDataBinding>: BaseMVVMActivity() {
 
     // region Abstract
 
@@ -39,7 +67,13 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: AppCompatActivity() {
 
     protected open fun onViewModelCreate(savedInstanceState: Bundle?) {
         vm = getViewModel(ViewModelProviders.of(this, viewModelFactory))
-        binding.setVariable(viewModelVariableId, vm)
+                .also {
+                    binding.setVariable(viewModelVariableId, it)
+                    if (it is OnBackPressedListener) {
+                        addOnBackPressedListener(it)
+                    }
+                }
+
         viewLifeCycle?.let(lifecycle::addObserver)
     }
 
@@ -50,12 +84,6 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         binding.unbind()
-    }
-
-    override fun onBackPressed() {
-        if (!vm.onBackPressed()) {
-            super.onBackPressed()
-        }
     }
 
 }

@@ -23,10 +23,6 @@ abstract class MVVMViewModel: ViewModel(), NotifiableObservable {
 
     override fun notifyPropertyChanged(fieldId: Int) = registry.notifyPropertyChanged(fieldId)
 
-    // endregion Observable
-
-    open fun onBackPressed(): Boolean = false
-
     fun <T: MVVMViewModel> T.clearViewModel() = this.onCleared()
 
 }

@@ -17,7 +17,7 @@ import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
  * mail: mail@sunnydaydev.me
  */
 
-abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment()  {
+abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment(), OnBackPressedListener {
 
     // region Abstract
 
@@ -54,19 +54,28 @@ abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment()  {
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+
+        (activity as? BaseMVVMActivity)?.addOnBackPressedListener(this)
+
         return onCreateBinding(inflater, container, savedInstanceState)
                 .apply { setVariable(viewModelVariableId, vm) }
                 .root
+
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+
+        (activity as? BaseMVVMActivity)?.removeOnBackPressedListener(this)
         binding?.unbind()
         binding = null
+
     }
 
     protected open fun proceedInjection() {
         // no-op
     }
+
+    override fun onBackPressed(): Boolean = (vm as? OnBackPressedListener)?.onBackPressed() ?: false
 
 }
