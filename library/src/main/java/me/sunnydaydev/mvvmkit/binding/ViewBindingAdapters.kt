@@ -193,6 +193,24 @@ object ViewBindingAdapters {
 
     // endregion
 
+    // region Tags
+
+    @JvmStatic
+    @BindingAdapter("tags")
+    fun bindTags(view: View, tags: Map<Int, Any>) {
+        tags.forEach {
+            view.setTag(it.key, it.value)
+        }
+    }
+
+    @JvmStatic
+    @BindingAdapter("tag")
+    fun bindTags(view: View, tag: Any) {
+        view.tag = tag
+    }
+
+    // endregion
+
     // region Classes, interfaces, etc.
 
     interface OnClickListener {
