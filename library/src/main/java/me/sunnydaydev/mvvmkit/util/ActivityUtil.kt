@@ -17,6 +17,13 @@ fun <V: ViewDataBinding> Activity.setContentBinding(
 ): V = DataBindingUtil.setContentView(this, layoutId)
 
 fun Activity.findViewWithTag(id: Int, value: Any) : View? {
-    val root = findViewById<ViewGroup>(android.R.id.content).getChildAt(0) as ViewGroup
-    return root.findViewWithTag(id, value)
+    val contentView = contentView ?: return null
+    return when {
+        contentView is ViewGroup -> contentView.findViewWithTag(id, value)
+        contentView.getTag(id) == value -> contentView
+        else -> null
+    }
 }
+
+val Activity.contentView: View? get() = findViewById<ViewGroup>(android.R.id.content)
+        .getChildAt(0)
