@@ -8,6 +8,7 @@ import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import me.sunnydaydev.mvvmkit.observable.Command
 import me.sunnydaydev.mvvmkit.observable.PureCommand
@@ -210,6 +211,35 @@ object ViewBindingAdapters {
     }
 
     // endregion
+
+    @JvmStatic
+    @BindingAdapter(
+            value = [
+                "marginStart",
+                "marginTop",
+                "marginEnd",
+                "marginBottom",
+                "marginRight",
+                "marginLeft"
+            ],
+            requireAll = false
+    )
+    fun bindMargins(view: View, start: Int?, top: Int?, end: Int?, bottom: Int?,
+                    right: Int?, left: Int?) {
+        val lp = view.layoutParams as? ViewGroup.MarginLayoutParams ?: return
+
+        with(lp) {
+            if (start != null) marginStart = start
+            if (top != null) topMargin = top
+            if (end != null) lp.marginEnd = end
+            if (bottom != null) bottomMargin = bottom
+            if (right != null) rightMargin = right
+            if (left != null) leftMargin = left
+        }
+
+        view.layoutParams = lp
+
+    }
 
     // region Classes, interfaces, etc.
 
