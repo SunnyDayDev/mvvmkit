@@ -6,4 +6,6 @@
 
     <item name="binding_view_focused" type="id"/>
 
+    <item name="binding_appbarlayout_offset_listener" type="id"/>
+
 </resources>
