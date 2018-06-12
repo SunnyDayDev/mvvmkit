@@ -1,5 +1,6 @@
 package me.sunnydaydev.mvvmkit.binding
 
+import android.text.method.MovementMethod
 import androidx.databinding.BindingAdapter
 import android.view.KeyEvent
 import android.view.View
@@ -30,6 +31,12 @@ object TextViewBindingAdapters {
 
         view.setOnKeyListener(viewListener)
 
+    }
+
+    @JvmStatic
+    @BindingAdapter("movementMethod")
+    fun bindMovementMethod(view: TextView, movementMethod: MovementMethod) {
+        view.movementMethod = movementMethod
     }
 
     interface OnKeyListener {

@@ -3,7 +3,7 @@
 buildscript {
 
     ext.kotlin_version = '1.2.41'
-    ext.gradlePlugin = '3.2.0-alpha17'
+    ext.gradlePlugin = '3.2.0-alpha18'
 
     repositories {
         google()
