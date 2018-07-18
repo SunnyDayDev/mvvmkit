@@ -20,63 +20,6 @@ interface MVVMList<T>: ObservableList<T> {
 
 }
 
-interface ImmutableMVVMList<T>: MVVMList<T> {
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun add(element: T): Boolean = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun add(index: Int, element: T) = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun addAll(index: Int, elements: Collection<T>): Boolean = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun addAll(elements: Collection<T>): Boolean = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun clear() = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun listIterator(): MutableListIterator<T> = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun listIterator(index: Int): MutableListIterator<T> = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun remove(element: T): Boolean = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun removeAll(elements: Collection<T>): Boolean = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun removeAt(index: Int): T = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun retainAll(elements: Collection<T>): Boolean = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun set(index: Int, element: T): T = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun move(fromIndex: Int, toIndex: Int) = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun swap(fromIndex: Int, toIndex: Int) = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun setAll(items: Collection<T>) = notSupported()
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun setAll(items: Collection<T>, startIndex: Int, count: Int) = notSupported()
-
-    private fun notSupported(): Nothing = error("Not supported")
-    
-}
-
 open class MVVMArrayList<T>(): ArrayList<T>(), MVVMList<T> {
 
     @Transient

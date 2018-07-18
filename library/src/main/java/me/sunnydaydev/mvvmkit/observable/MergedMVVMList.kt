@@ -84,24 +84,15 @@ class MergedMVVMList<T>(vararg lists: MVVMList<out T>): ImmutableMVVMList<T> {
         listeners.remove(listener)
     }
 
-    override fun iterator(): ImmutableIteratorIterator = ImmutableIteratorIterator()
+    override fun iterator() = ImmutableMVVMList.ImmutableIterator(this)
+
+    override fun listIterator() = ImmutableMVVMList.ImmutableListIterator(this, -1)
+
+    override fun listIterator(index: Int) = ImmutableMVVMList.ImmutableListIterator(this, index)
 
     private fun getIndexOffset(list: MVVMList<T>): Int {
         val listIndex = lists.indexOf(list)
         return (0 until listIndex).sumBy { lists[it].size }
-    }
-
-    inner class ImmutableIteratorIterator: MutableIterator<T> {
-
-        private var index = -1
-
-        override fun hasNext(): Boolean = size != 0 && index < size - 1
-
-        override fun next(): T = this@MergedMVVMList[+index]
-
-        @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-        override fun remove() = throw IllegalStateException("Immutable")
-
     }
 
     class Builder<T> {
