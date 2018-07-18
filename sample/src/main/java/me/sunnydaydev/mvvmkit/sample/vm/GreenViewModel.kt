@@ -9,7 +9,11 @@ import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
  * mail: mail@sunnydaydev.me
  */
 
-internal class GreenViewModel(id: Int): MVVMViewModel() {
+internal open class GreenBaseViewModelViewModelMVVMViewModel: MVVMViewModel() {
+
+}
+
+internal class GreenViewModel(id: Int): GreenBaseViewModelViewModelMVVMViewModel() {
 
     @get:Bindable var id by bindable("$id")
 
