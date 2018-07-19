@@ -1,4 +1,4 @@
-package me.sunnydaydev.mvvmkit.
+package me.sunnydaydev.mvvmkit
 
 import androidx.test.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
@@ -15,10 +15,12 @@ import org.junit.Assert.*
  */
 @RunWith(AndroidJUnit4::class)
 class ExampleInstrumentedTest {
+
     @Test
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getTargetContext()
-        assertEquals("me.sunnydaydev.modernmvvm", appContext.packageName)
+        assertEquals("me.sunnydaydev.mvvmkit.test", appContext.packageName)
     }
+
 }

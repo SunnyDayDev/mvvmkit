@@ -9,6 +9,7 @@ import androidx.databinding.BindingConversion
 import android.graphics.Bitmap
 import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.request.RequestOptions
+import java.net.URL
 
 
 /**
@@ -20,7 +21,11 @@ object ImageViewBindingAdapters {
 
     @JvmStatic
     @BindingConversion
-    fun convertHobbiesToString(string: String?): Uri? = string?.let { Uri.parse(it) }
+    fun convertStringToUri(string: String?): Uri? = string?.let { Uri.parse(it) }
+
+    @JvmStatic
+    @BindingConversion
+    fun convertURLToUri(string: URL?): Uri? = string?.let { Uri.parse(it.toString()) }
 
     @JvmStatic
     @BindingAdapter("imageDrawable")
