@@ -229,12 +229,17 @@ object ViewBindingAdapters {
         val lp = view.layoutParams as? ViewGroup.MarginLayoutParams ?: return
 
         with(lp) {
-            if (start != null) marginStart = start
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                if (start != null) marginStart = start
+                if (end != null) lp.marginEnd = end
+            }
+
             if (top != null) topMargin = top
-            if (end != null) lp.marginEnd = end
             if (bottom != null) bottomMargin = bottom
             if (right != null) rightMargin = right
             if (left != null) leftMargin = left
+
         }
 
         view.layoutParams = lp
