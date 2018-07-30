@@ -64,21 +64,22 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:layout_width="match_parent"
-            android:layout_height="128dp"
+            android:id="@+id/swipeRefreshLayout"
             colorSchemeColors="@{@intArray/refreshLayoutColors}"
             onRefresh="@{vm::onRefresh}"
             refreshing="@{vm.refreshing}"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
             app:layout_constraintBottom_toTopOf="@+id/colors">
 
             <androidx.recyclerview.widget.RecyclerView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                android:orientation="horizontal"
                 recyclerView_items="@{vm.allItems}"
                 recyclerView_itemsLayoutMap="@{MainActivityBindings.colorsMap}"
-                tools:listitem="@layout/orange_list_item_layout"/>
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/orange_list_item_layout" />
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
@@ -170,6 +171,21 @@
 
 
         </LinearLayout>
+
+        <WebView
+            android:id="@+id/webview"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginBottom="8dp"
+            loadUrlCommand="@{vm.webviewUrl}"
+            clearBeforeLoad="@{true}"
+            app:layout_constraintBottom_toTopOf="@+id/swipeRefreshLayout"
+            app:layout_constraintEnd_toStartOf="@+id/textView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

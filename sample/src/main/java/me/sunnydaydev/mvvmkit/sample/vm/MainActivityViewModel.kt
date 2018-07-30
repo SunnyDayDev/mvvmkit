@@ -1,8 +1,7 @@
 package me.sunnydaydev.mvvmkit.sample.vm
 
 import androidx.databinding.Bindable
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import io.reactivex.Completable
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -17,14 +16,19 @@ import kotlin.math.min
  * mail: mail@sunnydaydev.me
  */
 
-class MainActivityViewModelFactory: ViewModelProvider.Factory {
+class MainActivityViewModelFactory constructor(
+        private val lifecycle: Lifecycle
+): ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T = MainActivityViewModel() as T
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T =
+            MainActivityViewModel(lifecycle) as T
 
 }
 
-class MainActivityViewModel: MVVMViewModel() {
+class MainActivityViewModel(
+        private val lifecycle: Lifecycle
+): MVVMViewModel(), LifecycleObserver {
 
     val logoUrl: String = "http://www.geognos.com/api/en/countries/flag/RU.png"
 
@@ -39,6 +43,8 @@ class MainActivityViewModel: MVVMViewModel() {
 
     @get:Bindable var refreshing by bindable(false)
 
+    @get:Bindable var webviewUrl = Command<String>()
+
     val transitionCommand = PureCommand()
 
     private val orangeFactory: ColorsFactory = OrangeViewModel.Factory()
@@ -50,6 +56,15 @@ class MainActivityViewModel: MVVMViewModel() {
     private val oranges: MVVMList<MVVMViewModel> = MVVMArrayList()
     private val greens: MVVMList<MVVMViewModel> = MVVMArrayList()
     private val blues: MVVMList<MVVMViewModel> = MVVMArrayList()
+
+    init {
+        lifecycle.addObserver(this)
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    fun onCreateView() {
+        webviewUrl.fire("https://sunnydaydev.me")
+    }
 
     fun addOrange() {
         oranges.add(orangeFactory.create())
@@ -96,6 +111,7 @@ class MainActivityViewModel: MVVMViewModel() {
     override fun onCleared() {
         super.onCleared()
         black.clearViewModel()
+        lifecycle.removeObserver(this)
     }
 
 }
