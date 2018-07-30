@@ -1,7 +1,9 @@
 package me.sunnydaydev.mvvmkit.binding
 
 import android.os.Build
+import android.webkit.WebChromeClient
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.databinding.BindingAdapter
 import me.sunnydaydev.mvvmkit.observable.Command
 
@@ -52,6 +54,18 @@ object WebViewBindings {
 
         }
 
+    }
+
+    @JvmStatic
+    @BindingAdapter("webViewClient")
+    fun bindWebViewClient(view: WebView, client: WebViewClient?) {
+        view.webViewClient = client
+    }
+
+    @JvmStatic
+    @BindingAdapter("webChromeClient")
+    fun bindWebChromeClient(view: WebView, client: WebChromeClient?) {
+        view.webChromeClient = client
     }
 
 }
