@@ -165,6 +165,24 @@ object RecyclerViewBindingsAdapter {
 
     // endregion
 
+    // region ItemDecoration
+
+    @JvmStatic
+    @BindingAdapter("itemDecoration")
+    fun bindItemDecoration(view: RecyclerView, decoration: RecyclerView.ItemDecoration) {
+        // TODO: remove previous
+        view.addItemDecoration(decoration)
+    }
+
+    @JvmStatic
+    @BindingAdapter("itemDecorations")
+    fun bindItemDecorations(view: RecyclerView, decoration: List<RecyclerView.ItemDecoration>) {
+        // TODO: remove previous
+        decoration.forEach(view::addItemDecoration)
+    }
+
+    // endregion
+
     // region Classes
 
     interface OnTouchItemMovedCallback {
