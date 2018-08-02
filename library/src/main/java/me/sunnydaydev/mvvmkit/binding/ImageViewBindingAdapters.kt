@@ -7,8 +7,12 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import androidx.databinding.BindingConversion
 import android.graphics.Bitmap
+import android.os.Build
+import androidx.core.content.ContextCompat
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.request.RequestOptions
+import me.sunnydaydev.mvvmkit.util.findActivity
 import java.net.URL
 
 
@@ -82,5 +86,39 @@ object ImageViewBindingAdapters {
             check: Boolean?,
             action: RequestOptions.() -> RequestOptions
     ): RequestOptions = if (check == true) action(this) else this
+
+    @JvmStatic
+    @BindingAdapter("srcCompat")
+    fun bindSrcCompat(view: ImageView, id: Int) {
+        if (id == -1) {
+            view.setImageDrawable(null)
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                view.setImageDrawable(ContextCompat.getDrawable(view.context, id))
+            } else {
+                try {
+                    view.setImageDrawable(ContextCompat.getDrawable(view.context, id))
+                } catch (e: Throwable) {
+                    try {
+                        val vector = VectorDrawableCompat.create(
+                                view.resources, id, view.findActivity()?.theme)
+                        view.setImageDrawable(vector)
+                    } catch (ignored: Throwable) {
+                        throw e
+                    }
+                }
+            }
+        }
+    }
+
+    @JvmStatic
+    @BindingAdapter("src")
+    fun bindSrc(view: ImageView, id: Int) {
+        if (id == -1) {
+            view.setImageDrawable(null)
+        } else {
+            view.setImageDrawable(ContextCompat.getDrawable(view.context, id))
+        }
+    }
 
 }

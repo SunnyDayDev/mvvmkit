@@ -6,6 +6,9 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import android.content.ContextWrapper
+
+
 
 /**
  * Created by sunny on 11.06.2018.
@@ -27,3 +30,14 @@ fun Activity.findViewWithTag(id: Int, value: Any) : View? {
 
 val Activity.contentView: View? get() = findViewById<ViewGroup>(android.R.id.content)
         .getChildAt(0)
+
+fun View.findActivity(): Activity? {
+    var context = context
+    while (context is ContextWrapper) {
+        if (context is Activity) {
+            return context
+        }
+        context = context.baseContext
+    }
+    return null
+}
