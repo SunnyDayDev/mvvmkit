@@ -45,6 +45,8 @@ class PureCommand: BaseCommand<Event>() {
         true
     }
 
+    operator fun invoke() = fire()
+
 }
 
 class Command<T>: BaseCommand<T>() {
@@ -55,6 +57,9 @@ class Command<T>: BaseCommand<T>() {
         action(it)
         true
     }
+
+
+    operator fun invoke(event: T) = fire(event)
 
 }
 
@@ -71,6 +76,8 @@ class TargetedCommand<E, T: Any>: BaseCommand<Pair<E, T>>() {
         }
     }
 
+    operator fun invoke(event: E, target: T) = fire(event, target)
+
 }
 
 class TargetedPureCommand<T: Any>: BaseCommand<T>() {
@@ -85,5 +92,7 @@ class TargetedPureCommand<T: Any>: BaseCommand<T>() {
             false
         }
     }
+
+    operator fun invoke(target: T) = fire(target)
 
 }
