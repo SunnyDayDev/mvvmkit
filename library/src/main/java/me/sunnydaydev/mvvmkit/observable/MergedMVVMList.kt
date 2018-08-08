@@ -97,9 +97,9 @@ class MergedMVVMList<T>(vararg lists: MVVMList<out T>): ImmutableMVVMList<T> {
 
     class Builder<T> {
 
-        private val lists = mutableListOf<MVVMList<T>>()
+        private val lists = mutableListOf<MVVMList<out T>>()
 
-        fun add(list: MVVMList<T>): Builder<T> = this.also { lists.add(list) }
+        fun add(list: MVVMList<out T>): Builder<T> = this.also { lists.add(list) }
 
         fun add(item: T): Builder<T> = this.also { lists.add(MVVMArrayList(item)) }
 
