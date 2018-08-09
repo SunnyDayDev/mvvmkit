@@ -38,33 +38,39 @@ object ImageViewBindingAdapters {
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["imageUrl", "imageUrlOptions"])
-    fun bindImageUrl(imageView: ImageView, url: Uri?, options: RequestOptions?) {
-
-        val glide = Glide.with(imageView)
-        glide.clear(imageView)
-
-        url ?: return
-
-        glide.load(url)
-                .apply { if (options != null) apply(options) }
-                .into(imageView)
-
-    }
+    @BindingAdapter(
+            value = [
+                "imageUri",
+                "imageUriCenterCrop",
+                "imageUriCenterInside",
+                "imageUriCircleCrop",
+                "imageUriFitCenter"
+            ],
+            requireAll = false
+    )
+    fun bindImageUri(imageView: ImageView,
+                     uri: Uri?,
+                     centerCrop: Boolean?,
+                     centerInside: Boolean?,
+                     circleCrop: Boolean?,
+                     fitCenter: Boolean?) =
+            bindImageUri(imageView, uri, centerCrop, centerInside,
+                    circleCrop, fitCenter, null)
 
     @JvmStatic
     @BindingAdapter(
             value = [
-                "imageUrl",
-                "imageUrlCenterCrop",
-                "imageUrlCenterInside",
-                "imageUrlCircleCrop",
-                "imageUrlFitCenter",
-                "imageUrlTransformation"
+                "imageUri",
+                "imageUriCenterCrop",
+                "imageUriCenterInside",
+                "imageUriCircleCrop",
+                "imageUriFitCenter",
+                "imageUriTransformation"
             ],
-            requireAll = false
+            requireAll = true
     )
-    fun bindImageUrl(imageView: ImageView, url: Uri?,
+    fun bindImageUri(imageView: ImageView,
+                     uri: Uri?,
                      centerCrop: Boolean?,
                      centerInside: Boolean?,
                      circleCrop: Boolean?,
@@ -78,7 +84,22 @@ object ImageViewBindingAdapters {
                 .applyIf(fitCenter) { fitCenter() }
                 .applyIf(transformation != null) { transform(transformation!!) }
 
-        bindImageUrl(imageView, url, options)
+        bindImageUri(imageView, uri, options)
+
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["imageUri", "imageUriOptions"])
+    fun bindImageUri(imageView: ImageView, url: Uri?, options: RequestOptions?) {
+
+        val glide = Glide.with(imageView)
+        glide.clear(imageView)
+
+        url ?: return
+
+        glide.load(url)
+                .apply { if (options != null) apply(options) }
+                .into(imageView)
 
     }
 
