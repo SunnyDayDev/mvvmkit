@@ -6,7 +6,8 @@ import androidx.databinding.ViewDataBinding
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import me.sunnydaydev.mvvmkit.util.ViewLifeCycle
+import me.sunnydaydev.mvvmkit.util.LateInitValue
+import me.sunnydaydev.mvvmkit.util.lateinit
 import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
 
 /**
@@ -51,39 +52,57 @@ abstract class MVVMActivity<Binding: ViewDataBinding>: BaseMVVMActivity() {
 
     protected abstract val binding: Binding
 
-    protected open val viewLifeCycle: ViewLifeCycle? = null
-
     protected abstract fun getViewModel(provider: ViewModelProvider): MVVMViewModel
 
     // endregion
 
-    private lateinit var vm: MVVMViewModel
+    private val lateinitViewModelValue = LateInitValue<MVVMViewModel>()
+    protected val viewModel: MVVMViewModel by lateinit(lateinitViewModelValue)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val injected = proceedInjectionBeforeOnCreate()
         super.onCreate(savedInstanceState)
-        proceedInjection()
+        if (!injected) proceedInjectionAtOnCreate()
         onViewModelCreate(savedInstanceState)
     }
 
     protected open fun onViewModelCreate(savedInstanceState: Bundle?) {
-        vm = getViewModel(ViewModelProviders.of(this, viewModelFactory))
-                .also {
-                    binding.setVariable(viewModelVariableId, it)
-                    if (it is OnBackPressedListener) {
-                        addOnBackPressedListener(it)
-                    }
-                }
+        val viewModelValue = getViewModel(ViewModelProviders.of(this, viewModelFactory))
+        lateinitViewModelValue.set(viewModelValue)
 
-        viewLifeCycle?.let(lifecycle::addObserver)
+        with(viewModel) {
+
+            binding.setVariable(viewModelVariableId, this)
+            if (this is OnBackPressedListener) {
+                addOnBackPressedListener(this)
+            }
+
+            onViewModelCreated(viewModel)
+
+        }
+
     }
 
-    protected open fun proceedInjection() {
+    private fun onViewModelCreated(viewModel: MVVMViewModel) {
+        // no-op
+    }
+
+    protected open fun proceedInjectionBeforeOnCreate(): Boolean = false
+
+    protected open fun proceedInjectionAtOnCreate() {
         // no-op
     }
 
     override fun onDestroy() {
         super.onDestroy()
         binding.unbind()
+
+        with(viewModel) {
+            if (this is OnBackPressedListener) {
+                removeOnBackPressedListener(this)
+            }
+        }
+
     }
 
 }

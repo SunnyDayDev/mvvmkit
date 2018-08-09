@@ -9,7 +9,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import me.sunnydaydev.mvvmkit.util.ViewLifeCycle
+import me.sunnydaydev.mvvmkit.util.LateInitValue
+import me.sunnydaydev.mvvmkit.util.lateinit
 import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
 
 /**
@@ -25,8 +26,6 @@ abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment(), OnBackPressed
 
     protected abstract val viewModelFactory: ViewModelProvider.Factory
 
-    protected open val viewLifeCycle: ViewLifeCycle? = null
-
     protected abstract fun onCreateBinding(inflater: LayoutInflater,
                                            container: ViewGroup?,
                                            savedInstanceState: Bundle?): Binding
@@ -35,7 +34,8 @@ abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment(), OnBackPressed
 
     // endregion
 
-    private lateinit var vm: MVVMViewModel
+    private val viewModelLateInit = LateInitValue<MVVMViewModel>()
+    protected val viewModel: MVVMViewModel by lateinit(viewModelLateInit)
 
     @Suppress("MemberVisibilityCanBePrivate")
     protected var binding: Binding? = null
@@ -47,8 +47,12 @@ abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment(), OnBackPressed
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        vm = getViewModel(ViewModelProviders.of(this, viewModelFactory))
-        viewLifeCycle?.let(lifecycle::addObserver)
+
+        val viewModelValue = getViewModel(ViewModelProviders.of(this, viewModelFactory))
+        viewModelLateInit.set(viewModelValue)
+
+        onViewModelCreated(viewModel)
+
     }
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -58,7 +62,10 @@ abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment(), OnBackPressed
         (activity as? BaseMVVMActivity)?.addOnBackPressedListener(this)
 
         return onCreateBinding(inflater, container, savedInstanceState)
-                .apply { setVariable(viewModelVariableId, vm) }
+                .apply {
+                    onBindViewModel()
+                    setVariable(viewModelVariableId, viewModel)
+                }
                 .root
 
     }
@@ -69,13 +76,27 @@ abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment(), OnBackPressed
         (activity as? BaseMVVMActivity)?.removeOnBackPressedListener(this)
         binding?.unbind()
         binding = null
+        onUnbindViewModel()
 
+    }
+
+    override fun onBackPressed(): Boolean =
+            (viewModel as? OnBackPressedListener)?.onBackPressed() ?: false
+
+    private fun onViewModelCreated(viewModel: MVVMViewModel) {
+        // no-op
+    }
+
+    protected fun onBindViewModel() {
+        // no-op
+    }
+
+    protected fun onUnbindViewModel() {
+        // no-op
     }
 
     protected open fun proceedInjection() {
         // no-op
     }
-
-    override fun onBackPressed(): Boolean = (vm as? OnBackPressedListener)?.onBackPressed() ?: false
 
 }
