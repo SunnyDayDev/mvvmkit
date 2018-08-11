@@ -2,6 +2,7 @@ package me.sunnydaydev.mvvmkit.util
 
 import android.os.Bundle
 import android.os.Parcelable
+import java.lang.ref.WeakReference
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -90,49 +91,24 @@ inline fun <reified T: TNN?, TNN: Any> bundleProperty(
 class BundleProperty<T: TNN?, TNN: Any>(
         private val name: String,
         private val defaultValue: () -> T,
-        private var setterProvider: ((bundle: Bundle) -> (key: String, value: TNN) -> Unit)?,
-        private var getterProvider: ((bundle: Bundle) -> (key: String) -> TNN)?
+        private val setterProvider: (bundle: Bundle) -> (key: String, value: TNN) -> Unit,
+        private val getterProvider: (bundle: Bundle) -> (key: String) -> TNN
 ): ReadWriteProperty<Bundle, T> {
-
-    private var initialized = false
-
-    private lateinit var getter: (key: String) -> TNN
-    private lateinit var setter: (key: String, value: TNN) -> Unit
 
     override fun getValue(thisRef: Bundle, property: KProperty<*>): T {
 
-        init(thisRef)
-
-        return if (thisRef.containsKey(name)) getter(name) as T
+        return if (thisRef.containsKey(name)) getterProvider(thisRef)(name) as T
                else defaultValue()
 
     }
 
     override fun setValue(thisRef: Bundle, property: KProperty<*>, value: T) {
 
-        init(thisRef)
-
         if (value == null) {
             thisRef.remove(name)
         } else {
-            setter(name, value)
+            setterProvider(thisRef)(name, value)
         }
-
-    }
-
-    @Synchronized
-    private fun init(bundle: Bundle) {
-        if (initialized) return
-        initialized = true
-
-        val getterProvider = getterProvider ?: error("Provider is null.")
-        val setterProvider = setterProvider ?: error("Provider is null.")
-
-        getter = getterProvider(bundle)
-        setter = setterProvider(bundle)
-
-        this.getterProvider = null
-        this.setterProvider = null
 
     }
 
