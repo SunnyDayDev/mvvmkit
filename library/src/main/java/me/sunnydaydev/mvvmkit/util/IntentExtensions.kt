@@ -23,5 +23,9 @@ inline fun <reified T: Context> createIntent(pkg: String, config: Intent.() -> U
             .apply(config)
 }
 
+inline fun <reified T: Context> createIntent(
+        context: Context, config: Intent.() -> Unit = { }
+) : Intent = createIntent<T>(context.packageName, config)
+
 fun componentName(pkg: String, klass: Class<*>): ComponentName =
         ComponentName(pkg, klass.name)
