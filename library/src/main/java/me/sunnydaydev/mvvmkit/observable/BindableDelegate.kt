@@ -58,6 +58,11 @@ internal class BindableDelegate<in R: NotifiableObservable, T: Any?> (
 
 fun <R: NotifiableObservable, T: Any?> bindable(
         initialValue: T,
-        id: Int? = null,
+        onChange: ((T) -> Unit)? = null
+): ReadWriteProperty<R, T> = bindable(initialValue, null, onChange)
+
+fun <R: NotifiableObservable, T: Any?> bindable(
+        initialValue: T,
+        id: Int?,
         onChange: ((T) -> Unit)? = null
 ): ReadWriteProperty<R, T> = BindableDelegate(initialValue, id, onChange)
