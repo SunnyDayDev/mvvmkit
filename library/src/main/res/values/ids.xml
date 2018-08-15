@@ -11,4 +11,7 @@
 
     <item name="binding_edittext_listener_selection" type="id"/>
 
+    <item name="binding_webview_url" type="id"/>
+    <item name="binding_webview_data" type="id"/>
+
 </resources>
