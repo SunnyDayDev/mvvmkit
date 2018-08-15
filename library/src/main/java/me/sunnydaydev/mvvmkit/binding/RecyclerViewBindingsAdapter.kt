@@ -232,8 +232,8 @@ object RecyclerViewBindingsAdapter {
             private val lastCallback: AdapterPositionListener.SingleCallback?
     ): RecyclerView.OnScrollListener() {
 
-        private var lastHandledFirst: Int? = null
-        private var lastHandledLast: Int? = null
+        private var handledFirst: Int? = null
+        private var handledLast: Int? = null
 
         fun isSame(callback: Callback?,
                    first: AdapterPositionListener.SingleCallback?,
@@ -245,15 +245,29 @@ object RecyclerViewBindingsAdapter {
             val first = recyclerView.firstVisibleItemPosition
             val last = recyclerView.lastVisibleItemPosition
 
-            if (lastHandledFirst != first || lastHandledLast != last) {
+            val firstChanged = handledFirst != first
+            val lastChanged = handledLast != last
 
+            if (firstCallback != null && firstChanged) {
                 recyclerView.post {
-                    firstCallback?.onItemVisiblePositionChanged(first)
-                    lastCallback?.onItemVisiblePositionChanged(last)
-                    callback?.onItemsVisiblePositionChanged(first, last)
+                    firstCallback.onItemVisiblePositionChanged(first)
                 }
-
             }
+
+            if (lastCallback != null && lastChanged) {
+                recyclerView.post {
+                    lastCallback.onItemVisiblePositionChanged(last)
+                }
+            }
+
+            if (callback != null && (firstChanged || lastChanged)) {
+                recyclerView.post {
+                    callback.onItemsVisiblePositionChanged(first, last)
+                }
+            }
+
+            if (firstChanged) handledFirst = first
+            if (lastChanged) handledLast = last
 
         }
 
