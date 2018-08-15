@@ -1,10 +1,10 @@
 package me.sunnydaydev.mvvmkit.binding
 
+import androidx.core.view.get
 import androidx.databinding.BindingAdapter
 import androidx.databinding.adapters.ListenerUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.nitrico.lastadapter.LastAdapter
 import me.sunnydaydev.mvvmkit.R
 import me.sunnydaydev.mvvmkit.observable.Command
@@ -182,6 +182,94 @@ object RecyclerViewBindingsAdapter {
     }
 
     // endregion
+
+    @JvmStatic
+    @BindingAdapter(
+            value = [
+                "recyclerView_onVisibleItemsPositionsChanged",
+                "recyclerView_onFirstVisibleItemsPositionsChanged",
+                "recyclerView_onLastVisibleItemPositionsChanged"
+            ],
+            requireAll = false
+    )
+    fun bindLastVisiblePosition(view: RecyclerView,
+                                callback: AdapterPositionListener.Callback?,
+                                first: AdapterPositionListener.SingleCallback?,
+                                last: AdapterPositionListener.SingleCallback?) {
+
+        val current: AdapterPositionListener? =
+                ListenerUtil.getListener(view, R.id.binding_recyclerview_binding_visible_position)
+
+        if (current?.isSame(callback, first, last) == true) return
+
+        current?.also(view::removeOnScrollListener)
+
+        if (callback == null) return
+
+        val newListener = AdapterPositionListener(callback, first, last)
+
+        view.addOnScrollListener(newListener)
+
+        ListenerUtil.trackListener(view, newListener, R.id.binding_recyclerview_binding_visible_position)
+
+    }
+
+    private val RecyclerView.firstVisibleItemPosition: Int get() {
+        if (childCount == 0) return -1
+        val firstView = this[0]
+        return getChildAdapterPosition(firstView)
+    }
+
+    private val RecyclerView.lastVisibleItemPosition: Int get() {
+        if (childCount == 0) return -1
+        val lastView = this[childCount - 1]
+        return getChildAdapterPosition(lastView)
+    }
+
+    class AdapterPositionListener(
+            private val callback: Callback?,
+            private val firstCallback: AdapterPositionListener.SingleCallback?,
+            private val lastCallback: AdapterPositionListener.SingleCallback?
+    ): RecyclerView.OnScrollListener() {
+
+        private var lastHandledFirst: Int? = null
+        private var lastHandledLast: Int? = null
+
+        fun isSame(callback: Callback?,
+                   first: AdapterPositionListener.SingleCallback?,
+                   last: AdapterPositionListener.SingleCallback?): Boolean =
+                callback == this.callback && first == firstCallback && last == lastCallback
+
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+
+            val first = recyclerView.firstVisibleItemPosition
+            val last = recyclerView.lastVisibleItemPosition
+
+            if (lastHandledFirst != first || lastHandledLast != last) {
+
+                recyclerView.post {
+                    firstCallback?.onItemVisiblePositionChanged(first)
+                    lastCallback?.onItemVisiblePositionChanged(last)
+                    callback?.onItemsVisiblePositionChanged(first, last)
+                }
+
+            }
+
+        }
+
+        interface Callback {
+
+            fun onItemsVisiblePositionChanged(first: Int, last: Int)
+
+        }
+
+        interface SingleCallback {
+
+            fun onItemVisiblePositionChanged(position: Int)
+
+        }
+
+    }
 
     // region Classes
 
