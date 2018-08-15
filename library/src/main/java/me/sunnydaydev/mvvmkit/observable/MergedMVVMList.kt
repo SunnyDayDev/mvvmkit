@@ -101,6 +101,9 @@ class MergedMVVMList<T>(vararg lists: MVVMList<out T>): ImmutableMVVMList<T> {
 
         fun add(list: MVVMList<out T>): Builder<T> = this.also { lists.add(list) }
 
+        fun add(optionalItem: OptionalMVVMListItem<out T>): Builder<T> =
+                this.also { lists.add(optionalItem.list) }
+
         fun add(item: T): Builder<T> = this.also { lists.add(MVVMArrayList(item)) }
 
         fun build(): MergedMVVMList<T> = MergedMVVMList(*lists.toTypedArray())
