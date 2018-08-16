@@ -8,6 +8,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.databinding.BindingAdapter
+import androidx.databinding.BindingConversion
 import androidx.databinding.adapters.ListenerUtil
 import me.sunnydaydev.mvvmkit.R
 import me.sunnydaydev.mvvmkit.observable.Command
@@ -225,7 +226,7 @@ data class WebViewData(val html: String,
 
 data class WebViewUrl(val url: String, val headers: Map<String, String>? = null) : Parcelable {
 
-    constructor(parcel: Parcel) : this(
+    internal constructor(parcel: Parcel) : this(
             parcel.readString()!!,
             parcel.readStringMap()
     )
