@@ -7,7 +7,7 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import android.content.ContextWrapper
-
+import androidx.core.view.ViewCompat
 
 
 /**
@@ -24,6 +24,15 @@ fun Activity.findViewWithTag(id: Int, value: Any) : View? {
     return when {
         contentView is ViewGroup -> contentView.findViewWithTag(id, value)
         contentView.getTag(id) == value -> contentView
+        else -> null
+    }
+}
+
+fun Activity.findViewWithTransitionName(value: String) : View? {
+    val contentView = contentView ?: return null
+    return when {
+        contentView is ViewGroup -> contentView.findViewWithTransitionName(value)
+        ViewCompat.getTransitionName(contentView) == value -> contentView
         else -> null
     }
 }
