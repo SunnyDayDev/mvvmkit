@@ -2,12 +2,14 @@ package me.sunnydaydev.mvvmkit.binding
 
 import androidx.core.view.get
 import androidx.databinding.BindingAdapter
+import androidx.databinding.BindingConversion
 import androidx.databinding.adapters.ListenerUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.github.nitrico.lastadapter.LastAdapter
 import me.sunnydaydev.mvvmkit.R
 import me.sunnydaydev.mvvmkit.observable.Command
+import me.sunnydaydev.mvvmkit.observable.PureCommand
 import java.lang.ref.WeakReference
 import kotlin.reflect.KClass
 
@@ -28,11 +30,11 @@ object RecyclerViewBindingsAdapter {
 
     // endregion
 
-    // region Listeners
-
-
-
-    // endregion
+    @JvmStatic
+    @BindingAdapter("recyclerView_resetAdapterCommand")
+    fun bindResetAdapter(view: RecyclerView, command: PureCommand) {
+        command.handle { view.adapter = view.adapter }
+    }
 
     // region Items
 

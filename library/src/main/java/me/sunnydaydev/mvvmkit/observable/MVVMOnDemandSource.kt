@@ -10,7 +10,7 @@ import me.sunnydaydev.mvvmkit.util.OnDemandSource
  * mail: mail@sunnydaydev.me
  */
 
-interface MVVMSourceList<T>: ImmutableMVVMList<T> {
+interface MVVMOnDemandSource<T>: ImmutableMVVMList<T> {
 
     companion object {
         private fun notSupported(): Nothing = error("Not supported")
@@ -19,34 +19,45 @@ interface MVVMSourceList<T>: ImmutableMVVMList<T> {
     @Deprecated(level = DeprecationLevel.HIDDEN, message = "Not supported")
     override fun contains(element: T): Boolean = notSupported()
 
+    @Deprecated(level = DeprecationLevel.HIDDEN, message = "Not supported")
     override fun containsAll(elements: Collection<T>): Boolean = notSupported()
 
+    @Deprecated(level = DeprecationLevel.HIDDEN, message = "Not supported")
     override fun indexOf(element: T): Int = notSupported()
+
+    @Deprecated(level = DeprecationLevel.HIDDEN, message = "Not supported")
+    override fun lastIndexOf(element: T): Int = notSupported()
 
     override fun isEmpty(): Boolean = size == 0
 
-    override fun lastIndexOf(element: T): Int = notSupported()
-
 }
 
-class MVVMMapOnDemandSourceList<T, VM: ViewModel>(
-        private val source: OnDemandSource<T>,
+class MVVMMappableOnDemandSource<T, VM: ViewModel>(
         private val mapper: (T) -> VM
-): MVVMSourceList<VM> {
+): MVVMOnDemandSource<VM> {
+
+    private var source: OnDemandSource<T>? = null
 
     private val callbacks = ListChangeRegistry()
 
+    constructor(source: OnDemandSource<T>, mapper: (T) -> VM): this(mapper) {
+        this.source = source
+    }
+
     private val iteratorSource get() = object: ImmutableMVVMList.IteratorSource<VM> {
 
-        override val size = this@MVVMMapOnDemandSourceList.size
+        override val size = this@MVVMMappableOnDemandSource.size
 
-        override fun get(index: Int) = this@MVVMMapOnDemandSourceList[index]
+        override fun get(index: Int) = this@MVVMMappableOnDemandSource[index]
 
     }
 
-    override val size = source.size
+    override val size = source?.size ?: 0
 
-    override fun get(index: Int): VM = mapper(source[index])
+    override fun get(index: Int): VM {
+        val source = source ?: error(IndexOutOfBoundsException("Index: $index, size: 0"))
+        return mapper(source[index])
+    }
 
     override fun addOnListChangedCallback(callback: ObservableList.OnListChangedCallback<out ObservableList<VM>>?) {
         callbacks.add(callback)
@@ -64,5 +75,15 @@ class MVVMMapOnDemandSourceList<T, VM: ViewModel>(
 
     override fun iterator(): ImmutableMVVMList.ImmutableIterator<VM> =
             ImmutableMVVMList.ImmutableIterator(iteratorSource)
+
+    fun setSource(source: OnDemandSource<T>?): OnDemandSource<T>? {
+        if (source == this.source) return null
+        val current = this.source
+        this.source = source
+
+        callbacks.notifyChanged(this)
+
+        return current
+    }
 
 }
