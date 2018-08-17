@@ -16,6 +16,14 @@ class MergedMVVMList<T>(vararg lists: MVVMList<out T>): ImmutableMVVMList<T> {
     @Transient
     private var listeners: ListChangeRegistry = ListChangeRegistry()
 
+    private val iteratorSource get() = object: ImmutableMVVMList.IteratorSource<T> {
+
+        override val size = this@MergedMVVMList.size
+
+        override fun get(index: Int) = this@MergedMVVMList[index]
+
+    }
+
     private val childOnListChangedCallback = object: ObservableList.OnListChangedCallback<MVVMList<T>>() {
 
         override fun onChanged(sender: MVVMList<T>) {
@@ -84,11 +92,11 @@ class MergedMVVMList<T>(vararg lists: MVVMList<out T>): ImmutableMVVMList<T> {
         listeners.remove(listener)
     }
 
-    override fun iterator() = ImmutableMVVMList.ImmutableIterator(this)
+    override fun iterator() = ImmutableMVVMList.ImmutableIterator(iteratorSource)
 
-    override fun listIterator() = ImmutableMVVMList.ImmutableListIterator(this, -1)
+    override fun listIterator() = ImmutableMVVMList.ImmutableListIterator(iteratorSource, -1)
 
-    override fun listIterator(index: Int) = ImmutableMVVMList.ImmutableListIterator(this, index)
+    override fun listIterator(index: Int) = ImmutableMVVMList.ImmutableListIterator(iteratorSource, index)
 
     private fun getIndexOffset(list: MVVMList<T>): Int {
         val listIndex = lists.indexOf(list)

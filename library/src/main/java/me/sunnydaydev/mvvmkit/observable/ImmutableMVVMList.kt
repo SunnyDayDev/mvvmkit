@@ -58,11 +58,11 @@ interface ImmutableMVVMList<T>: MVVMList<T> {
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
     override fun setAll(items: Collection<T>, startIndex: Int, count: Int) = notSupported()
 
-    class ImmutableIterator<T>(val list: List<T>): MutableIterator<T> {
+    class ImmutableIterator<T>(val list: IteratorSource<T>): MutableIterator<T> {
 
         private var index = -1
 
-        override fun hasNext(): Boolean = list.isNotEmpty() && index < list.size - 1
+        override fun hasNext(): Boolean = list.size != 0 && index < list.size - 1
 
         override fun next(): T = list[++index]
 
@@ -71,17 +71,17 @@ interface ImmutableMVVMList<T>: MVVMList<T> {
 
     }
 
-    class ImmutableListIterator<T>(val list: List<T>, startIndex: Int): MutableListIterator<T> {
+    class ImmutableListIterator<T>(val list: IteratorSource<T>, startIndex: Int): MutableListIterator<T> {
 
         private var index = startIndex
 
-        override fun hasNext(): Boolean = list.isNotEmpty() && nextIndex() <= list.lastIndex
+        override fun hasNext(): Boolean = list.size != 0 && nextIndex() <= list.size - 1
 
         override fun nextIndex(): Int = index + 1
 
         override fun next(): T = list[++index]
 
-        override fun hasPrevious(): Boolean = list.isNotEmpty() && previousIndex() >= 0
+        override fun hasPrevious(): Boolean = list.size != 0 && previousIndex() >= 0
 
         override fun previousIndex(): Int = index - 1
 
@@ -96,6 +96,11 @@ interface ImmutableMVVMList<T>: MVVMList<T> {
         @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
         override fun set(element: T) = notSupported()
 
+    }
+
+    interface IteratorSource<T> {
+        val size: Int
+        operator fun get(index: Int): T
     }
 
     companion object {
