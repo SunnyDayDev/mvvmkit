@@ -10,23 +10,23 @@ import me.sunnydaydev.mvvmkit.util.OnDemandSource
  * mail: mail@sunnydaydev.me
  */
 
-interface MVVMOnDemandSource<T>: ImmutableMVVMList<T> {
+interface MVVMOnDemandSource<VM>: ImmutableMVVMList<VM> {
 
     companion object {
         private fun notSupported(): Nothing = error("Not supported")
     }
 
     @Deprecated(level = DeprecationLevel.HIDDEN, message = "Not supported")
-    override fun contains(element: T): Boolean = notSupported()
+    override fun contains(element: VM): Boolean = notSupported()
 
     @Deprecated(level = DeprecationLevel.HIDDEN, message = "Not supported")
-    override fun containsAll(elements: Collection<T>): Boolean = notSupported()
+    override fun containsAll(elements: Collection<VM>): Boolean = notSupported()
 
     @Deprecated(level = DeprecationLevel.HIDDEN, message = "Not supported")
-    override fun indexOf(element: T): Int = notSupported()
+    override fun indexOf(element: VM): Int = notSupported()
 
     @Deprecated(level = DeprecationLevel.HIDDEN, message = "Not supported")
-    override fun lastIndexOf(element: T): Int = notSupported()
+    override fun lastIndexOf(element: VM): Int = notSupported()
 
     override fun isEmpty(): Boolean = size == 0
 

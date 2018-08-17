@@ -158,10 +158,9 @@ open class MVVMArrayList<T>(): ArrayList<T>(), MVVMList<T> {
     protected fun notifiableSwap(firstIndex: Int, secondIndex: Int, notify: Boolean = true) {
 
         synchronized(this) {
-            val first = notifiableRemoveAt(firstIndex, false)
-            val second = this[secondIndex]
+            val first = this[firstIndex]
+            notifiableSet(firstIndex, this[secondIndex], false)
             notifiableSet(secondIndex, first, false)
-            notifiableSet(firstIndex, second, false)
         }
 
         if (notify) {
