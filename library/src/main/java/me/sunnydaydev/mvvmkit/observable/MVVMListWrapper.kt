@@ -17,27 +17,27 @@ class MVVMMListWrapper<T>(
     private val childOnListChangedCallback = object: ObservableList.OnListChangedCallback<MVVMList<T>>() {
 
         override fun onChanged(sender: MVVMList<T>) {
-            if (sender == this@MVVMMListWrapper) return
-            onChanged(this@MVVMMListWrapper)
+            if (sender === this@MVVMMListWrapper) return
+            listeners.notifyChanged(this@MVVMMListWrapper)
         }
 
         override fun onItemRangeRemoved(sender: MVVMList<T>, positionStart: Int, itemCount: Int) {
-            if (sender == this@MVVMMListWrapper) return
+            if (sender === this@MVVMMListWrapper) return
             listeners.notifyRemoved(this@MVVMMListWrapper, positionStart, itemCount)
         }
 
         override fun onItemRangeMoved(sender: MVVMList<T>, fromPosition: Int, toPosition: Int, itemCount: Int) {
-            if (sender == this@MVVMMListWrapper) return
+            if (sender === this@MVVMMListWrapper) return
             listeners.notifyMoved(this@MVVMMListWrapper, fromPosition, toPosition, itemCount)
         }
 
         override fun onItemRangeInserted(sender: MVVMList<T>, positionStart: Int, itemCount: Int) {
-            if (sender == this@MVVMMListWrapper) return
+            if (sender === this@MVVMMListWrapper) return
             listeners.notifyInserted(this@MVVMMListWrapper, positionStart, itemCount)
         }
 
         override fun onItemRangeChanged(sender: MVVMList<T>, positionStart: Int, itemCount: Int) {
-            if (sender == this@MVVMMListWrapper) return
+            if (sender === this@MVVMMListWrapper) return
             listeners.notifyChanged(this@MVVMMListWrapper, positionStart, itemCount)
         }
 
@@ -152,11 +152,16 @@ class MVVMMListWrapper<T>(
         listeners.remove(callback)
     }
 
-    fun setSource(list: List<T>) {
+    fun setSource(list: List<T>): List<T>? {
+        if (list === source) return null
+
+        val current = source
         source.removeOnListChangedCallback()
         source = list
         list.addOnListChangedCallback()
         notifyChanged()
+
+        return current
     }
 
     fun notifyChanged() {

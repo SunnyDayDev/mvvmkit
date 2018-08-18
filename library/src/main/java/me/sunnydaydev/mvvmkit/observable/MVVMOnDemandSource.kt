@@ -42,7 +42,7 @@ class MVVMMappableOnDemandSource<T, VM: ViewModel>(
     private val callbacks = ListChangeRegistry()
 
     constructor(source: OnDemandSource<T>, mapper: (T) -> VM): this(mapper) {
-        this.source = source
+        setSource(source)
     }
 
     private val iteratorDelegate = object: MVVMListIterator.Delegate<VM> {
@@ -81,7 +81,8 @@ class MVVMMappableOnDemandSource<T, VM: ViewModel>(
     override fun iterator() = MVVMIterator(iteratorDelegate)
 
     fun setSource(source: OnDemandSource<T>?): OnDemandSource<T>? {
-        if (source == this.source) return null
+        if (source === this.source) return null
+
         val current = this.source
         this.source = source
 

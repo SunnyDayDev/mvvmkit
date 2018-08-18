@@ -34,22 +34,28 @@ class MergedMVVMList<T>(vararg lists: MVVMList<out T>): ImmutableMVVMList<T> {
     private val childOnListChangedCallback = object: ObservableList.OnListChangedCallback<MVVMList<T>>() {
 
         override fun onChanged(sender: MVVMList<T>) {
-            listeners.notifyChanged(this@MergedMVVMList, getFixedIndex(sender, 0), sender.size)
+            if(sender === this@MergedMVVMList) return
+            listeners.notifyChanged(this@MergedMVVMList)
+            //listeners.notifyChanged(this@MergedMVVMList, getFixedIndex(sender, 0), sender.size)
         }
 
         override fun onItemRangeRemoved(sender: MVVMList<T>, positionStart: Int, itemCount: Int) {
+            if(sender === this@MergedMVVMList) return
             listeners.notifyRemoved(this@MergedMVVMList, getFixedIndex(sender, positionStart), itemCount)
         }
 
         override fun onItemRangeMoved(sender: MVVMList<T>, fromPosition: Int, toPosition: Int, itemCount: Int) {
+            if(sender === this@MergedMVVMList) return
             listeners.notifyMoved(this@MergedMVVMList, getFixedIndex(sender, fromPosition), getFixedIndex(sender, toPosition), itemCount)
         }
 
         override fun onItemRangeInserted(sender: MVVMList<T>, positionStart: Int, itemCount: Int) {
+            if(sender === this@MergedMVVMList) return
             listeners.notifyInserted(this@MergedMVVMList, getFixedIndex(sender, positionStart), itemCount)
         }
 
         override fun onItemRangeChanged(sender: MVVMList<T>, positionStart: Int, itemCount: Int) {
+            if(sender === this@MergedMVVMList) return
             listeners.notifyChanged(this@MergedMVVMList, getFixedIndex(sender, positionStart), itemCount)
         }
 
