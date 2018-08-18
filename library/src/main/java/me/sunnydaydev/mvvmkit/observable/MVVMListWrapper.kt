@@ -17,23 +17,48 @@ class MVVMMListWrapper<T>(
     private val childOnListChangedCallback = object: ObservableList.OnListChangedCallback<MVVMList<T>>() {
 
         override fun onChanged(sender: MVVMList<T>) {
+            if (sender == this@MVVMMListWrapper) return
             onChanged(this@MVVMMListWrapper)
         }
 
         override fun onItemRangeRemoved(sender: MVVMList<T>, positionStart: Int, itemCount: Int) {
+            if (sender == this@MVVMMListWrapper) return
             listeners.notifyRemoved(this@MVVMMListWrapper, positionStart, itemCount)
         }
 
         override fun onItemRangeMoved(sender: MVVMList<T>, fromPosition: Int, toPosition: Int, itemCount: Int) {
+            if (sender == this@MVVMMListWrapper) return
             listeners.notifyMoved(this@MVVMMListWrapper, fromPosition, toPosition, itemCount)
         }
 
         override fun onItemRangeInserted(sender: MVVMList<T>, positionStart: Int, itemCount: Int) {
+            if (sender == this@MVVMMListWrapper) return
             listeners.notifyInserted(this@MVVMMListWrapper, positionStart, itemCount)
         }
 
         override fun onItemRangeChanged(sender: MVVMList<T>, positionStart: Int, itemCount: Int) {
+            if (sender == this@MVVMMListWrapper) return
             listeners.notifyChanged(this@MVVMMListWrapper, positionStart, itemCount)
+        }
+
+    }
+
+    private val iteratorDelegate = object: MVVMListIterator.Delegate<T> {
+
+        override val size: Int get() = this@MVVMMListWrapper.size
+
+        override fun get(index: Int): T = this@MVVMMListWrapper[index]
+
+        override fun remove(index: Int) {
+            this@MVVMMListWrapper.removeAt(index)
+        }
+
+        override fun set(index: Int, value: T) {
+            this@MVVMMListWrapper[index] = value
+        }
+
+        override fun add(index: Int, element: T) {
+            this@MVVMMListWrapper.add(index, element)
         }
 
     }
@@ -77,7 +102,7 @@ class MVVMMListWrapper<T>(
         }
     }
 
-    override val size: Int = source.size
+    override val size get() = source.size
 
     override fun contains(element: T): Boolean = source.contains(element)
 
@@ -89,7 +114,7 @@ class MVVMMListWrapper<T>(
 
     override fun isEmpty(): Boolean = source.isEmpty()
 
-    override fun iterator(): MutableIterator<T> = source.mutable().iterator()
+    override fun iterator(): MutableIterator<T> = MVVMIterator(iteratorDelegate)
 
     override fun lastIndexOf(element: T): Int = source.mutable().lastIndexOf(element)
 
@@ -103,9 +128,9 @@ class MVVMMListWrapper<T>(
 
     override fun clear() = source.mutable().clear()
 
-    override fun listIterator(): MutableListIterator<T> = source.mutable().listIterator()
+    override fun listIterator(): MutableListIterator<T> = MVVMListIterator(iteratorDelegate)
 
-    override fun listIterator(index: Int): MutableListIterator<T> = source.mutable().listIterator(index)
+    override fun listIterator(index: Int): MutableListIterator<T> = MVVMListIterator(iteratorDelegate, index)
 
     override fun remove(element: T): Boolean = source.mutable().remove(element)
 

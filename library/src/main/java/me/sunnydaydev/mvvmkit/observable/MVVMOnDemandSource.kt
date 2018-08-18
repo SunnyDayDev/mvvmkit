@@ -4,6 +4,7 @@ import androidx.databinding.ListChangeRegistry
 import androidx.databinding.ObservableList
 import androidx.lifecycle.ViewModel
 import me.sunnydaydev.mvvmkit.util.OnDemandSource
+import me.sunnydaydev.mvvmkit.util.notSupportedOperation
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 17.08.2018.
@@ -13,20 +14,20 @@ import me.sunnydaydev.mvvmkit.util.OnDemandSource
 interface MVVMOnDemandSource<VM>: ImmutableMVVMList<VM> {
 
     companion object {
-        private fun notSupported(): Nothing = error("Not supported")
+        private fun notSupportedOperation(): Nothing = error("Not supported")
     }
 
     @Deprecated(level = DeprecationLevel.HIDDEN, message = "Not supported")
-    override fun contains(element: VM): Boolean = notSupported()
+    override fun contains(element: VM): Boolean = notSupportedOperation()
 
     @Deprecated(level = DeprecationLevel.HIDDEN, message = "Not supported")
-    override fun containsAll(elements: Collection<VM>): Boolean = notSupported()
+    override fun containsAll(elements: Collection<VM>): Boolean = notSupportedOperation()
 
     @Deprecated(level = DeprecationLevel.HIDDEN, message = "Not supported")
-    override fun indexOf(element: VM): Int = notSupported()
+    override fun indexOf(element: VM): Int = notSupportedOperation()
 
     @Deprecated(level = DeprecationLevel.HIDDEN, message = "Not supported")
-    override fun lastIndexOf(element: VM): Int = notSupported()
+    override fun lastIndexOf(element: VM): Int = notSupportedOperation()
 
     override fun isEmpty(): Boolean = size == 0
 
@@ -44,15 +45,21 @@ class MVVMMappableOnDemandSource<T, VM: ViewModel>(
         this.source = source
     }
 
-    private val iteratorSource get() = object: ImmutableMVVMList.IteratorSource<VM> {
+    private val iteratorDelegate = object: MVVMListIterator.Delegate<VM> {
 
-        override val size = this@MVVMMappableOnDemandSource.size
+        override val size: Int get() = this@MVVMMappableOnDemandSource.size
 
-        override fun get(index: Int) = this@MVVMMappableOnDemandSource[index]
+        override fun get(index: Int): VM = this@MVVMMappableOnDemandSource[index]
+
+        override fun remove(index: Int) = notSupportedOperation()
+
+        override fun set(index: Int, value: VM) = notSupportedOperation()
+
+        override fun add(index: Int, element: VM) = notSupportedOperation()
 
     }
 
-    override val size = source?.size ?: 0
+    override val size get() = source?.size ?: 0
 
     override fun get(index: Int): VM {
         val source = source ?: error(IndexOutOfBoundsException("Index: $index, size: 0"))
@@ -67,14 +74,11 @@ class MVVMMappableOnDemandSource<T, VM: ViewModel>(
         callbacks.remove(callback)
     }
 
-    override fun listIterator(): ImmutableMVVMList.ImmutableListIterator<VM> =
-            ImmutableMVVMList.ImmutableListIterator(iteratorSource, -1)
+    override fun listIterator() = MVVMListIterator(iteratorDelegate)
 
-    override fun listIterator(index: Int): ImmutableMVVMList.ImmutableListIterator<VM> =
-            ImmutableMVVMList.ImmutableListIterator(iteratorSource, index)
+    override fun listIterator(index: Int) = MVVMListIterator(iteratorDelegate, index)
 
-    override fun iterator(): ImmutableMVVMList.ImmutableIterator<VM> =
-            ImmutableMVVMList.ImmutableIterator(iteratorSource)
+    override fun iterator() = MVVMIterator(iteratorDelegate)
 
     fun setSource(source: OnDemandSource<T>?): OnDemandSource<T>? {
         if (source == this.source) return null

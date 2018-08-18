@@ -1,5 +1,7 @@
 package me.sunnydaydev.mvvmkit.observable
 
+import me.sunnydaydev.mvvmkit.util.notSupportedOperation
+
 /**
  * Created by sunny on 19.08.2018.
  * mail: mail@sunnydaydev.me
@@ -8,105 +10,54 @@ package me.sunnydaydev.mvvmkit.observable
 interface ImmutableMVVMList<T>: MVVMList<T> {
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun add(element: T): Boolean = notSupported()
+    override fun add(element: T): Boolean = notSupportedOperation()
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun add(index: Int, element: T) = notSupported()
+    override fun add(index: Int, element: T) = notSupportedOperation()
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun addAll(index: Int, elements: Collection<T>): Boolean = notSupported()
+    override fun addAll(index: Int, elements: Collection<T>): Boolean = notSupportedOperation()
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun addAll(elements: Collection<T>): Boolean = notSupported()
+    override fun addAll(elements: Collection<T>): Boolean = notSupportedOperation()
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun clear() = notSupported()
+    override fun clear() = notSupportedOperation()
 
-    override fun iterator(): ImmutableIterator<T>
+    override fun iterator(): MVVMIterator<T>
 
-    override fun listIterator(): ImmutableListIterator<T>
+    override fun listIterator(): MVVMListIterator<T>
 
-    override fun listIterator(index: Int): ImmutableListIterator<T>
-
-    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun remove(element: T): Boolean = notSupported()
+    override fun listIterator(index: Int): MVVMListIterator<T>
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun removeAll(elements: Collection<T>): Boolean = notSupported()
+    override fun remove(element: T): Boolean = notSupportedOperation()
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun removeAt(index: Int): T = notSupported()
+    override fun removeAll(elements: Collection<T>): Boolean = notSupportedOperation()
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun retainAll(elements: Collection<T>): Boolean = notSupported()
+    override fun removeAt(index: Int): T = notSupportedOperation()
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun set(index: Int, element: T): T = notSupported()
+    override fun retainAll(elements: Collection<T>): Boolean = notSupportedOperation()
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> = notSupported()
+    override fun set(index: Int, element: T): T = notSupportedOperation()
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun move(fromIndex: Int, toIndex: Int) = notSupported()
+    override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> = notSupportedOperation()
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun swap(fromIndex: Int, toIndex: Int) = notSupported()
+    override fun move(fromIndex: Int, toIndex: Int) = notSupportedOperation()
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun setAll(items: Collection<T>) = notSupported()
+    override fun swap(fromIndex: Int, toIndex: Int) = notSupportedOperation()
 
     @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-    override fun setAll(items: Collection<T>, startIndex: Int, count: Int) = notSupported()
+    override fun setAll(items: Collection<T>) = notSupportedOperation()
 
-    class ImmutableIterator<T>(val list: IteratorSource<T>): MutableIterator<T> {
-
-        private var index = -1
-
-        override fun hasNext(): Boolean = list.size != 0 && index < list.size - 1
-
-        override fun next(): T = list[++index]
-
-        @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-        override fun remove() = notSupported()
-
-    }
-
-    class ImmutableListIterator<T>(val list: IteratorSource<T>, startIndex: Int): MutableListIterator<T> {
-
-        private var index = startIndex
-
-        override fun hasNext(): Boolean = list.size != 0 && nextIndex() <= list.size - 1
-
-        override fun nextIndex(): Int = index + 1
-
-        override fun next(): T = list[++index]
-
-        override fun hasPrevious(): Boolean = list.size != 0 && previousIndex() >= 0
-
-        override fun previousIndex(): Int = index - 1
-
-        override fun previous(): T = list[--index]
-
-        @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-        override fun add(element: T) = notSupported()
-
-        @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-        override fun remove() = notSupported()
-
-        @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
-        override fun set(element: T) = notSupported()
-
-    }
-
-    interface IteratorSource<T> {
-        val size: Int
-        operator fun get(index: Int): T
-    }
-
-    companion object {
-
-        private fun notSupported(): Nothing = error("Not supported")
-
-    }
+    @Deprecated(message = "Merged list immutable", level = DeprecationLevel.HIDDEN)
+    override fun setAll(items: Collection<T>, startIndex: Int, count: Int) = notSupportedOperation()
 
 }

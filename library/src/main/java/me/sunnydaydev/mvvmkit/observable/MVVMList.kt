@@ -8,7 +8,7 @@ import androidx.databinding.ObservableList
  * mail: mail@sunnydaydev.me
  */
 
-interface MVVMList<T>: ObservableList<T> {
+interface MVVMList<T>: ObservableList<T>, MutableList<T> {
 
     fun move(fromIndex: Int, toIndex: Int)
 

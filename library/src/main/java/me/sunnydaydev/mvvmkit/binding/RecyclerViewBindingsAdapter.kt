@@ -31,7 +31,7 @@ object RecyclerViewBindingsAdapter {
     // endregion
 
     @JvmStatic
-    @BindingAdapter("recyclerView_resetAdapterCommand")
+    @BindingAdapter("resetAdapterCommand")
     fun bindResetAdapter(view: RecyclerView, command: PureCommand) {
         command.handle { view.adapter = view.adapter }
     }
@@ -41,9 +41,9 @@ object RecyclerViewBindingsAdapter {
     @JvmStatic
     @BindingAdapter(
             value = [
-                "recyclerView_items",
-                "recyclerView_itemsLayoutMap",
-                "recyclerView_itemsStableId"
+                "items",
+                "itemsLayoutMap",
+                "itemsStableId"
             ],
             requireAll = false
     )
@@ -88,9 +88,9 @@ object RecyclerViewBindingsAdapter {
     @JvmStatic
     @BindingAdapter(
             value = [
-                "recyclerView_onItemMoved",
-                "recyclerView_onItemActionStateChanged",
-                "recyclerView_canItemDropOver"
+                "onItemMoved",
+                "onItemActionStateChanged",
+                "canItemDropOver"
             ],
             requireAll = false
     )
@@ -188,9 +188,9 @@ object RecyclerViewBindingsAdapter {
     @JvmStatic
     @BindingAdapter(
             value = [
-                "recyclerView_onVisibleItemsPositionsChanged",
-                "recyclerView_onFirstVisibleItemsPositionsChanged",
-                "recyclerView_onLastVisibleItemPositionsChanged"
+                "onVisibleItemsPositionsChanged",
+                "onFirstVisibleItemsPositionsChanged",
+                "onLastVisibleItemPositionsChanged"
             ],
             requireAll = false
     )

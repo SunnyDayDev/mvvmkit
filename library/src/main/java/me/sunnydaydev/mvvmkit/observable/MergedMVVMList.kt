@@ -2,6 +2,7 @@ package me.sunnydaydev.mvvmkit.observable
 
 import androidx.databinding.ListChangeRegistry
 import androidx.databinding.ObservableList
+import me.sunnydaydev.mvvmkit.util.notSupportedOperation
 
 /**
  * Created by sunny on 07.06.2018.
@@ -16,11 +17,17 @@ class MergedMVVMList<T>(vararg lists: MVVMList<out T>): ImmutableMVVMList<T> {
     @Transient
     private var listeners: ListChangeRegistry = ListChangeRegistry()
 
-    private val iteratorSource get() = object: ImmutableMVVMList.IteratorSource<T> {
+    private val iteratorDelegate get() = object: MVVMListIterator.Delegate<T> {
 
         override val size = this@MergedMVVMList.size
 
         override fun get(index: Int) = this@MergedMVVMList[index]
+
+        override fun remove(index: Int) = notSupportedOperation()
+
+        override fun set(index: Int, value: T) = notSupportedOperation()
+
+        override fun add(index: Int, element: T) = notSupportedOperation()
 
     }
 
@@ -92,11 +99,11 @@ class MergedMVVMList<T>(vararg lists: MVVMList<out T>): ImmutableMVVMList<T> {
         listeners.remove(listener)
     }
 
-    override fun iterator() = ImmutableMVVMList.ImmutableIterator(iteratorSource)
+    override fun iterator() = MVVMIterator(iteratorDelegate)
 
-    override fun listIterator() = ImmutableMVVMList.ImmutableListIterator(iteratorSource, -1)
+    override fun listIterator() = MVVMListIterator(iteratorDelegate, -1)
 
-    override fun listIterator(index: Int) = ImmutableMVVMList.ImmutableListIterator(iteratorSource, index)
+    override fun listIterator(index: Int) = MVVMListIterator(iteratorDelegate, index)
 
     private fun getIndexOffset(list: MVVMList<T>): Int {
         val listIndex = lists.indexOf(list)

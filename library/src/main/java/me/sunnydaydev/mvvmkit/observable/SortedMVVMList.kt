@@ -2,6 +2,7 @@ package me.sunnydaydev.mvvmkit.observable
 
 import android.annotation.TargetApi
 import android.os.Build
+import me.sunnydaydev.mvvmkit.util.notSupportedOperation
 import java.util.function.UnaryOperator
 
 /**
@@ -48,30 +49,28 @@ class SortedMVVMList<T> private constructor(
     }
 
     @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun setAll(items: Collection<T>) = notSupported()
+    override fun setAll(items: Collection<T>) = notSupportedOperation()
 
     @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun addAll(index: Int, elements: Collection<T>): Boolean = notSupported()
+    override fun addAll(index: Int, elements: Collection<T>): Boolean = notSupportedOperation()
 
     @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun add(index: Int, element: T) = notSupported()
+    override fun add(index: Int, element: T) = notSupportedOperation()
 
     @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun setAll(items: Collection<T>, startIndex: Int, count: Int) = notSupported()
+    override fun setAll(items: Collection<T>, startIndex: Int, count: Int) = notSupportedOperation()
 
     @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun move(fromIndex: Int, toIndex: Int) = notSupported()
+    override fun move(fromIndex: Int, toIndex: Int) = notSupportedOperation()
 
     @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun retainAll(elements: Collection<T>): Boolean = notSupported()
+    override fun retainAll(elements: Collection<T>): Boolean = notSupportedOperation()
 
     @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun set(index: Int, element: T): T = notSupported()
+    override fun set(index: Int, element: T): T = notSupportedOperation()
 
     @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun swap(fromIndex: Int, toIndex: Int) = notSupported()
-
-    private fun notSupported(): Nothing = throw IllegalAccessException(NOT_SUPPORTED)
+    override fun swap(fromIndex: Int, toIndex: Int) = notSupportedOperation()
 
     companion object {
 
