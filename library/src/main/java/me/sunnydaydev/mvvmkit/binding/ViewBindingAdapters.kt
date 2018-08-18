@@ -52,13 +52,19 @@ object ViewBindingAdapters {
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["focusCommand", "focusTarget"])
+    @BindingAdapter(value = ["focusCommand", "focusTarget"], requireAll = true)
     fun <T: Any> bindFocusCommand(view: View, focus: TargetedPureCommand<T>, target: T) {
 
         focus.handle(target) {
             view.requestFocus()
         }
 
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["focusCommand"])
+    fun bindFocusPureCommand(view: View, focus: PureCommand) {
+        focus.handle { view.requestFocus() }
     }
 
     // endregion
