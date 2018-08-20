@@ -18,7 +18,7 @@ import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
  */
 
 abstract class MVVMBottomSheetDialog<Binding: ViewDataBinding>: BottomSheetDialog  {
-    
+
     constructor(context: Context): super(context)
 
     constructor(context: Context, theme: Int): super(context, theme)

@@ -73,8 +73,12 @@ object ViewBindingAdapters {
 
     @JvmStatic
     @BindingAdapter("onClick")
-    fun bindOnClick(view: View, onClickListener: OnClickListener) {
-        view.setOnClickListener { onClickListener() }
+    fun bindOnClick(view: View, onClickListener: OnClickListener?) {
+        if (onClickListener != null) {
+            view.setOnClickListener { onClickListener() }
+        } else {
+            view.setOnClickListener(null)
+        }
     }
 
     @JvmStatic
