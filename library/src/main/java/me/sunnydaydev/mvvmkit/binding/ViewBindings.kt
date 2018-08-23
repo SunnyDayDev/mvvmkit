@@ -19,7 +19,7 @@ import me.sunnydaydev.mvvmkit.observable.TargetedPureCommand
  * mail: mail@sunnydaydev.me
  */
 
-object ViewBindingAdapters {
+object ViewBindings: Bindings() {
 
     // region Focus
 

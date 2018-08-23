@@ -1,7 +1,7 @@
 package me.sunnydaydev.mvvmkit
 
 import androidx.test.runner.AndroidJUnit4
-import me.sunnydaydev.mvvmkit.binding.ImageViewBindingAdapters
+import me.sunnydaydev.mvvmkit.binding.ImageViewBindings
 import org.hamcrest.Matchers.`is`
 
 import org.junit.Test
@@ -16,13 +16,13 @@ import java.net.URL
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 @RunWith(AndroidJUnit4::class)
-class ImageViewBindingAdaptersTest {
+class ImageViewBindingsTest {
 
     @Test
     fun convertStringToUri() {
 
         val url = "https://some.host/path?query=1"
-        val uri = ImageViewBindingAdapters.convertStringToUri(url)
+        val uri = ImageViewBindings.convertStringToUri(url)
 
         assertThat(uri?.toString(), `is`(url))
 
@@ -33,7 +33,7 @@ class ImageViewBindingAdaptersTest {
 
         val urlString = "https://some.host/path?query=1"
         val url = URL(urlString)
-        val uri = ImageViewBindingAdapters.convertURLToUri(url)
+        val uri = ImageViewBindings.convertURLToUri(url)
 
         assertThat(uri?.toString(), `is`(urlString))
 

@@ -18,7 +18,7 @@ import me.sunnydaydev.mvvmkit.observable.Command
  * mail: mail@sunnydaydev.me
  */
  
-object WebViewBindings {
+object WebViewBindings: Bindings() {
 
     private const val WEBVIEW_URL = "me.sunnydaydev.mvvmkit.WebViewBindingAdapters.WebViewUrl"
     private const val WEBVIEW_DATA = "me.sunnydaydev.mvvmkit.WebViewBindingAdapters.WebViewData"

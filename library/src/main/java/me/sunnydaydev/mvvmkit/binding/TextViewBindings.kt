@@ -11,7 +11,7 @@ import android.widget.TextView
  * mail: mail@sunnydaydev.me
  */
 
-object TextViewBindingAdapters {
+object TextViewBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter("errorHint")

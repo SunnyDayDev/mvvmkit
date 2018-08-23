@@ -13,7 +13,7 @@ import me.sunnydaydev.mvvmkit.observable.PureCommand
  * mail: mail@sunnydaydev.me
  */
  
-object DrawerLayoutBindings {
+object DrawerLayoutBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter(

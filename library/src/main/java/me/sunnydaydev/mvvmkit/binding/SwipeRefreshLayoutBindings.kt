@@ -8,7 +8,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
  * mail: mail@sunnydaydev.me
  */
 
-object SwipeRefreshLayoutBindingAdapters {
+object SwipeRefreshLayoutBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter("onRefresh")

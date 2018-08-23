@@ -44,7 +44,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            imageUrl="@{vm.logoUrl}"
+            imageUri="@{vm.logoUrl}"
             app:civ_border_width="1dp"
             app:civ_border_color="#000"
             app:layout_constraintBottom_toTopOf="@+id/textView"
@@ -73,8 +73,8 @@
             app:layout_constraintBottom_toTopOf="@+id/colors">
 
             <androidx.recyclerview.widget.RecyclerView
-                recyclerView_items="@{vm.allItems}"
-                recyclerView_itemsLayoutMap="@{MainActivityBindings.colorsMap}"
+                items="@{vm.allItems}"
+                itemsLayoutMap="@{MainActivityBindings.colorsMap}"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
@@ -180,8 +180,8 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="2dp"
             android:layout_marginBottom="8dp"
-            loadUrlCommand="@{vm.webviewUrl}"
-            clearBeforeLoad="@{true}"
+            urlCommand="@{vm.webviewUrl}"
+            clearOnChange="@{true}"
             app:layout_constraintBottom_toTopOf="@+id/swipeRefreshLayout"
             app:layout_constraintEnd_toStartOf="@+id/textView"
             app:layout_constraintStart_toStartOf="parent"

@@ -1,13 +1,16 @@
 package me.sunnydaydev.mvvmkit.binding
 
+import androidx.core.view.ViewCompat
 import androidx.core.view.get
 import androidx.databinding.BindingAdapter
-import androidx.databinding.BindingConversion
 import androidx.databinding.adapters.ListenerUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ItemTouchHelper
+import com.github.nitrico.lastadapter.BaseType
 import com.github.nitrico.lastadapter.LastAdapter
+import com.github.nitrico.lastadapter.TypeHandler
 import me.sunnydaydev.mvvmkit.R
+import me.sunnydaydev.mvvmkit.binding.internal.BindableCore
 import me.sunnydaydev.mvvmkit.observable.Command
 import me.sunnydaydev.mvvmkit.observable.PureCommand
 import java.lang.ref.WeakReference
@@ -18,7 +21,9 @@ import kotlin.reflect.KClass
  * mail: mail@sunnydaydev.me
  */
 
-object RecyclerViewBindingsAdapter {
+object RecyclerViewBindings: Bindings() {
+
+    private val coreTag by lazy { ViewCompat.generateViewId() }
 
     // region Commands
 
@@ -39,51 +44,17 @@ object RecyclerViewBindingsAdapter {
     // region Items
 
     @JvmStatic
-    @BindingAdapter(
-            value = [
-                "items",
-                "itemsLayoutMap",
-                "itemsStableId"
-            ],
-            requireAll = false
-    )
-    fun <T: Any> bindRecyclerViewItems(
-            view: RecyclerView,
-            items: List<T>?,
-            bindingMap: BindingMap?,
-            stableId: Boolean?
-    ) {
+    @BindingAdapter("items")
+    fun <T: Any> bindItems(view: RecyclerView, items: List<T>) = view.adapterCore.setItems(items)
 
-        if (items == null || bindingMap == null) {
-            view.adapter = null
-            ListenerUtil.trackListener(view, null, R.id.binding_recyclerview_items_adapter_info)
-            return
-        }
+    @JvmStatic
+    @BindingAdapter("itemsLayoutMap")
+    fun bindItemsMap(view: RecyclerView, map: ItemsMap) = view.adapterCore.setItemsMap(map)
 
-        var adapterInfo: AdapterInfo<T>? =
-                ListenerUtil.getListener(view, R.id.binding_recyclerview_items_adapter_info)
-
-        // Check not changed
-        if (adapterInfo != null &&
-                adapterInfo.items.get() === items &&
-                adapterInfo.bindingMap.get() == bindingMap &&
-                adapterInfo.adapter.get()?.let { it === view.adapter } == true) {
-            return
-        }
-
-        val adapter = LastAdapter(items, stableId == true)
-                .apply {
-                    bindingMap.map.forEach {
-                        map(it.key.java, it.value.layout, it.value.variable)
-                    }
-                }
-                .into(view)
-
-        adapterInfo = AdapterInfo(adapter, items, bindingMap)
-
-        ListenerUtil.trackListener(view, adapterInfo, R.id.binding_recyclerview_items_adapter_info)
-
-    }
+    @JvmStatic
+    @BindingAdapter("itemsStableId")
+    fun bindItemsStableId(view: RecyclerView, stableId: Boolean) =
+            view.adapterCore.setStableId(stableId)
 
     @JvmStatic
     @BindingAdapter(
@@ -112,28 +83,33 @@ object RecyclerViewBindingsAdapter {
 
         val itemTouchCallback = object : ItemTouchHelper.Callback() {
 
-            override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder): Int {
+            override fun getMovementFlags(recyclerView: RecyclerView,
+                                          viewHolder: RecyclerView.ViewHolder): Int {
                 val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
                 return makeMovementFlags(dragFlags, 0)
             }
 
-            override fun onMove(recyclerView: RecyclerView, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, target: androidx.recyclerview.widget.RecyclerView.ViewHolder): Boolean {
-                return movedCallback?.onItemMoved(viewHolder.adapterPosition, target.adapterPosition) ?: true
+            override fun onMove(recyclerView: RecyclerView,
+                                viewHolder: RecyclerView.ViewHolder,
+                                target: RecyclerView.ViewHolder): Boolean =
+                    movedCallback?.onItemMoved(
+                            viewHolder.adapterPosition, target.adapterPosition) ?: true
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+
             }
 
-            override fun onSwiped(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, direction: Int) {
-
-            }
-
-            override fun canDropOver(recyclerView: RecyclerView, current: androidx.recyclerview.widget.RecyclerView.ViewHolder, target: androidx.recyclerview.widget.RecyclerView.ViewHolder): Boolean {
-                return dropOverCallback?.canDropOver(current.adapterPosition, target.adapterPosition) ?: true
-            }
+            override fun canDropOver(recyclerView: RecyclerView,
+                                     current: RecyclerView.ViewHolder,
+                                     target: RecyclerView.ViewHolder): Boolean =
+                    dropOverCallback?.canDropOver(
+                            current.adapterPosition, target.adapterPosition) ?: true
 
             override fun isLongPressDragEnabled(): Boolean = true
 
             override fun isItemViewSwipeEnabled(): Boolean = false
 
-            override fun onSelectedChanged(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder?, actionState: Int) {
+            override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
                 super.onSelectedChanged(viewHolder, actionState)
 
                 viewHolder ?: return
@@ -145,7 +121,8 @@ object RecyclerViewBindingsAdapter {
 
             }
 
-            override fun clearView(recyclerView: RecyclerView, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder) {
+            override fun clearView(recyclerView: RecyclerView,
+                                   viewHolder: RecyclerView.ViewHolder) {
                 super.clearView(recyclerView, viewHolder)
 
                 actionStateCallback?.onItemSelectionChanged(
@@ -212,7 +189,8 @@ object RecyclerViewBindingsAdapter {
 
         view.addOnScrollListener(newListener)
 
-        ListenerUtil.trackListener(view, newListener, R.id.binding_recyclerview_binding_visible_position)
+        ListenerUtil.trackListener(view,
+                newListener, R.id.binding_recyclerview_binding_visible_position)
 
     }
 
@@ -287,7 +265,73 @@ object RecyclerViewBindingsAdapter {
 
     }
 
+    private val RecyclerView.adapterCore get() =
+        getOrTrackListener(R.id.binding_recyclerview_adapter_core) { AdapterCore(this) }
+
     // region Classes
+
+    internal class AdapterCore(private val view: RecyclerView): BindableCore() {
+
+        private var items: WeakReference<List<Any>>? = null
+        private var stableId: Boolean = false
+        private var itemsMap: WeakReference<ItemsMap>? = null
+
+        fun <T: Any> setItems(items: List<T>) {
+            if (this.items?.get() === items) return
+            this.items = WeakReference(items)
+            notifyChanged()
+        }
+
+        fun setStableId(stableId: Boolean) {
+            if (this.stableId == stableId) return
+            this.stableId = stableId
+            notifyChanged()
+        }
+
+        fun setItemsMap(map: ItemsMap) {
+            if (this.itemsMap?.get()?.id == map.id) return
+            this.itemsMap = WeakReference(map)
+            notifyChanged()
+        }
+
+        override fun applyChanges() {
+
+            val items = this.items?.get()
+            val itemsMap = this.itemsMap?.get()
+
+            if (items == null || itemsMap == null) {
+                if (view.adapter != null) {
+                    view.adapter = null
+                }
+                return
+            }
+
+            val handler = object : TypeHandler {
+
+                private val alternate = mutableMapOf<KClass<out Any>, ItemsMap.Item>()
+
+                override fun getItemType(item: Any, position: Int): BaseType? {
+
+                    val klazz = item::class
+
+                    val itemMapping = itemsMap.map[klazz] ?: alternate[klazz] ?: itemsMap.map.keys
+                            .single { it.java.isAssignableFrom(klazz.java) }
+                            .also { alternate[klazz] = itemsMap.map[it]!! }
+                            .let { alternate[klazz]!! }
+
+                    return BaseType(itemMapping.layout, itemMapping.variable)
+
+                }
+
+            }
+
+            view.adapter = LastAdapter(items, stableId)
+                    .handler(handler)
+                    .into(view)
+
+        }
+
+    }
 
     interface OnTouchItemMovedCallback {
 
@@ -326,22 +370,22 @@ object RecyclerViewBindingsAdapter {
     private data class AdapterInfo<T>(
             val adapter: WeakReference<LastAdapter>,
             val items: WeakReference<List<T>>,
-            val bindingMap: WeakReference<BindingMap>
+            val itemsMap: WeakReference<ItemsMap>
     ) {
-        constructor(adapter: LastAdapter, items: List<T>, map: BindingMap):
+        constructor(adapter: LastAdapter, items: List<T>, map: ItemsMap):
                 this(WeakReference(adapter) ,WeakReference(items), WeakReference(map))
     }
 
-    class BindingMap (private val id: Int, map: Map<KClass<out Any>, Item> = emptyMap()) {
+    class ItemsMap (internal val id: Int = 0) {
 
-        internal val map = map.toMutableMap()
+        internal val map = mutableMapOf<KClass<out Any>, Item>()
 
-        inline fun <reified T: Any> map(variable: Int, layout: Int): BindingMap {
+        inline fun <reified T: Any> map(variable: Int, layout: Int): ItemsMap {
             map(T::class, variable = variable, layout = layout)
             return this
         }
 
-        fun <T: Any> map(clazz: KClass<T>, variable: Int, layout: Int): BindingMap {
+        fun <T: Any> map(clazz: KClass<T>, variable: Int, layout: Int): ItemsMap {
             map[clazz] = Item(variable = variable, layout = layout)
             return this
         }
@@ -350,14 +394,6 @@ object RecyclerViewBindingsAdapter {
                 val variable: Int,
                 val layout: Int
         )
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            other as? BindingMap ?: return false
-            return id == other.id
-        }
-
-        override fun hashCode(): Int = id.hashCode()
 
     }
 

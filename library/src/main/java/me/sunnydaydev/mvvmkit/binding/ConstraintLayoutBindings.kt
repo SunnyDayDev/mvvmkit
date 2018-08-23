@@ -9,7 +9,7 @@ import androidx.databinding.BindingAdapter
  * mail: mail@sunnydaydev.me
  */
 
-object ConstraintLayoutBindings {
+object ConstraintLayoutBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter("layout_constraintDimensionRatio")

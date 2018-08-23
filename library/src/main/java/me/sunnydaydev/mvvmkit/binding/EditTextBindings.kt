@@ -14,7 +14,7 @@ import kotlin.math.min
  * mail: mail@sunnydaydev.me
  */
  
-object EditTextBindingAdapters {
+object EditTextBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter(

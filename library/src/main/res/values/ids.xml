@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <item name="binding_recyclerview_items_adapter_info" type="id"/>
+    <item name="binding_recyclerview_adapter_core" type="id"/>
     <item name="binding_recyclerview_touch_item_helper" type="id"/>
     <item name="binding_recyclerview_binding_visible_position" type="id"/>
 
     <item name="binding_view_focused" type="id"/>
+
+    <item name="binding_imageview_source_core" type="id"/>
 
     <item name="binding_appbarlayout_offset_listener" type="id"/>
 

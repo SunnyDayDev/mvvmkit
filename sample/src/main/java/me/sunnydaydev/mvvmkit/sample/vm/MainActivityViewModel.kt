@@ -6,6 +6,7 @@ import io.reactivex.Completable
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import me.sunnydaydev.mvvmkit.binding.WebViewUrl
 import me.sunnydaydev.mvvmkit.observable.*
 import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
 import java.util.concurrent.TimeUnit
@@ -43,7 +44,7 @@ class MainActivityViewModel(
 
     @get:Bindable var refreshing by bindable(false)
 
-    @get:Bindable var webviewUrl = Command<String>()
+    @get:Bindable var webviewUrl = Command<WebViewUrl>()
 
     val transitionCommand = PureCommand()
 
@@ -63,7 +64,7 @@ class MainActivityViewModel(
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun onCreateView() {
-        webviewUrl.fire("https://sunnydaydev.me")
+        webviewUrl(WebViewUrl("https://sunnydaydev.me"))
     }
 
     fun addOrange() {

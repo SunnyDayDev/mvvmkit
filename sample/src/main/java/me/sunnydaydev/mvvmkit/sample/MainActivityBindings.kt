@@ -1,6 +1,6 @@
 package me.sunnydaydev.mvvmkit.sample
 
-import me.sunnydaydev.mvvmkit.binding.RecyclerViewBindingsAdapter
+import me.sunnydaydev.mvvmkit.binding.RecyclerViewBindings
 import me.sunnydaydev.mvvmkit.sample.vm.*
 
 /**
@@ -11,7 +11,7 @@ import me.sunnydaydev.mvvmkit.sample.vm.*
 object MainActivityBindings {
 
     @JvmStatic
-    val colorsMap = RecyclerViewBindingsAdapter.BindingMap(1)
+    val colorsMap = RecyclerViewBindings.ItemsMap(1)
             .map<BlackViewModel>(BR.vm, R.layout.black_list_item_layout)
             .map<OrangeViewModel>(BR.vm, R.layout.orange_list_item_layout)
             .map<GreenBaseViewModelViewModelMVVMViewModel>(BR.vm, R.layout.green_list_item_layout)

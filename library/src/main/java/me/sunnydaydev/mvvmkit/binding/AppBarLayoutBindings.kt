@@ -10,7 +10,7 @@ import me.sunnydaydev.mvvmkit.R
  * mail: mail@sunnydaydev.me
  */
 
-object AppBarLayoutBindings {
+object AppBarLayoutBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter("onOffsetChanged")
