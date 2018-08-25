@@ -33,6 +33,23 @@ open class Bindings {
                     ListenerUtil.trackListener(this, it, id)
                 }
 
+        @JvmStatic
+        protected fun <T: Any> View.getOrTrackListener(@IdRes id: Int,
+                                             checkCurrentFits: (T) -> Boolean,
+                                             creator: () -> T): T =
+                ListenerUtil.getListener<T>(this, id)?.takeIf(checkCurrentFits)
+                        ?: creator().also {
+                            ListenerUtil.trackListener(this, it, id)
+                        }
+
+        @JvmStatic
+        protected fun <T: Any> View.trackListener(@IdRes id: Int, listener: T): T? {
+            val current = ListenerUtil.getListener<T>(this, id)
+            if (current === listener) return null
+            ListenerUtil.trackListener(this, listener, id)
+            return current
+        }
+
     }
 
 }
