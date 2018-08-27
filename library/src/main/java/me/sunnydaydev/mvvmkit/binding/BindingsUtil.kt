@@ -1,6 +1,5 @@
 package me.sunnydaydev.mvvmkit.binding
 
-import android.content.Context
 import android.view.View
 import androidx.annotation.IdRes
 import androidx.databinding.adapters.ListenerUtil
@@ -25,37 +24,23 @@ object BindingsUtil {
 
 open class Bindings {
 
-    companion object {
+    fun <T: Any> View.getOrTrackListener(@IdRes id: Int, creator: () -> T): T =
+            getListener(id) ?: creator().also { trackListener(id, it) }
 
-        @JvmStatic
-        protected fun <T: Any> View.getOrTrackListener(@IdRes id: Int, creator: () -> T): T =
-                ListenerUtil.getListener<T>(this, id) ?: creator().also {
-                    ListenerUtil.trackListener(this, it, id)
-                }
+    fun <T: Any> View.getOrTrackListener(@IdRes id: Int,
+                                         checkCurrentFits: (T) -> Boolean,
+                                         creator: () -> T): T =
+            getListener<T>(id)?.takeIf(checkCurrentFits)
+                    ?: creator().also { trackListener(id, it) }
 
-        @JvmStatic
-        protected fun <T: Any> View.getOrTrackListener(@IdRes id: Int,
-                                             checkCurrentFits: (T) -> Boolean,
-                                             creator: () -> T): T =
-                ListenerUtil.getListener<T>(this, id)?.takeIf(checkCurrentFits)
-                        ?: creator().also {
-                            ListenerUtil.trackListener(this, it, id)
-                        }
-
-        @JvmStatic
-        protected fun <T: Any> View.trackListener(@IdRes id: Int, listener: T): T? {
-            val current = ListenerUtil.getListener<T>(this, id)
-            if (current === listener) return null
-            ListenerUtil.trackListener(this, listener, id)
-            return current
-        }
-
+    fun <T: Any> View.trackListener(@IdRes id: Int, listener: T): T? {
+        val current = getListener<T>(id)
+        if (current === listener) return null
+        ListenerUtil.trackListener(this, listener, id)
+        return current
     }
 
-}
-
-interface WithContextProvider<T> {
-
-    operator fun invoke(context: Context): T
+    fun <T: Any> View.getListener(@IdRes id: Int): T? =
+            ListenerUtil.getListener<T>(this, id)
 
 }

@@ -17,22 +17,31 @@ internal abstract class BindableCore {
     private var executingChanges: Runnable? = null
 
     @Synchronized
-    protected fun notifyChanged() {
+    protected fun notifyChanged(immediately: Boolean = false) {
 
         executingChanges?.let(uiHandler::removeCallbacks)
         executingChanges = null
 
         changesId += 1
-        val currentId = changesId
 
-        val request = Runnable {
-            executingChanges = null
-            if (currentId != changesId) return@Runnable
+        if (immediately) {
+
             applyChanges()
-        }
 
-        executingChanges = request
-        uiHandler.post(request)
+        } else {
+
+            val currentId = changesId
+
+            val request = Runnable {
+                executingChanges = null
+                if (currentId != changesId) return@Runnable
+                applyChanges()
+            }
+
+            executingChanges = request
+            uiHandler.post(request)
+
+        }
 
     }
 

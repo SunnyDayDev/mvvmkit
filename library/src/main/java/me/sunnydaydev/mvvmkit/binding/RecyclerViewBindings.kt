@@ -279,18 +279,18 @@ object RecyclerViewBindings: Bindings() {
         fun <T: Any> setItems(items: List<T>) {
             if (this.items?.get() === items) return
             this.items = WeakReference(items)
-            notifyChanged()
-        }
-
-        fun setStableId(stableId: Boolean) {
-            if (this.stableId == stableId) return
-            this.stableId = stableId
-            notifyChanged()
+            notifyChanged(itemsMap?.get() != null)
         }
 
         fun setItemsMap(map: ItemsMap) {
             if (this.itemsMap?.get()?.id == map.id) return
             this.itemsMap = WeakReference(map)
+            notifyChanged(items?.get() != null)
+        }
+
+        fun setStableId(stableId: Boolean) {
+            if (this.stableId == stableId) return
+            this.stableId = stableId
             notifyChanged()
         }
 
