@@ -58,7 +58,7 @@ abstract class MVVMBottomSheetDialogFragment<Binding: ViewDataBinding>: BottomSh
                               savedInstanceState: Bundle?): View? =
             onCreateBinding(inflater, container, savedInstanceState)
                     .apply {
-                        setVariable(viewModelVariableId, this)
+                        setVariable(viewModelVariableId, viewModel)
                     }
                     .also { binding = it }
                     .root
