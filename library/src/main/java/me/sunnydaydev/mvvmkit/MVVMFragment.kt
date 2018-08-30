@@ -66,6 +66,7 @@ abstract class MVVMFragment<Binding: ViewDataBinding>: Fragment(), OnBackPressed
                     onBindViewModel()
                     setVariable(viewModelVariableId, viewModel)
                 }
+                .also { binding = it }
                 .root
 
     }
