@@ -28,4 +28,10 @@ object SwipeRefreshLayoutBindings: Bindings() {
         view.setColorSchemeColors(*colors)
     }
 
+    @JvmStatic
+    @BindingAdapter("colorSchemeResources")
+    fun bindColorSchemeResources(view: SwipeRefreshLayout, colors: IntArray) {
+        view.setColorSchemeResources(*colors)
+    }
+
 }
