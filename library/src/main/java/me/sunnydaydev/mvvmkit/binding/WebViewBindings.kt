@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.webkit.WebChromeClient
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.databinding.BindingAdapter
@@ -57,6 +58,12 @@ object WebViewBindings: Bindings() {
     @BindingAdapter("webChromeClient")
     fun bindWebChromeClient(view: WebView, client: WebChromeClient?) {
         view.webChromeClient = client
+    }
+
+    @JvmStatic
+    @BindingAdapter("settingsConfigurator")
+    fun bindSettingsConfigurator(view: WebView, configurator: WebViewSettingsConfigurator) {
+        configurator.configure(view.settings)
     }
 
     @JvmStatic
@@ -152,6 +159,7 @@ object WebViewBindings: Bindings() {
 
     }
 
+    @JvmStatic
     fun saveState(webView: WebView, outState: Bundle) {
 
         (webView.getTag(R.id.binding_webview_data) as? WebViewData)?.let {
@@ -164,6 +172,7 @@ object WebViewBindings: Bindings() {
 
     }
 
+    @JvmStatic
     fun restoreState(webView: WebView, inState: Bundle) {
 
         (inState.getParcelable(WEBVIEW_DATA) as? WebViewData) ?.let {
@@ -183,6 +192,12 @@ object WebViewBindings: Bindings() {
             } else {
                 loadUrl("about:blank")
             }
+
+    interface WebViewSettingsConfigurator {
+
+        fun configure(settings: WebSettings)
+
+    }
 
 }
 
