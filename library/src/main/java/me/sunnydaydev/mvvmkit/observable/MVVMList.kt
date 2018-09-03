@@ -158,8 +158,7 @@ open class MVVMArrayList<T>(): ArrayList<T>(), MVVMList<T> {
     protected fun notifiableSwap(firstIndex: Int, secondIndex: Int, notify: Boolean = true) {
 
         synchronized(this) {
-            val first = this[firstIndex]
-            notifiableSet(firstIndex, this[secondIndex], false)
+            val first = notifiableSet(firstIndex, this[secondIndex], false)
             notifiableSet(secondIndex, first, false)
         }
 
@@ -216,12 +215,12 @@ open class MVVMArrayList<T>(): ArrayList<T>(), MVVMList<T> {
         if (notificationsEnabled) listeners.notifyChanged(this, start, count)
     }
 
-    protected fun silent(action: () -> Unit) {
-        synchronized(this) {
-            notificationsEnabled = false
-            action()
-            notificationsEnabled = true
-        }
+    @Synchronized
+    protected fun <R> silent(action: () -> R): R {
+        notificationsEnabled = false
+        val result = action()
+        notificationsEnabled = true
+        return result
     }
 
 }

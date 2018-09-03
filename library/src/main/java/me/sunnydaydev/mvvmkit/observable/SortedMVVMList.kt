@@ -1,8 +1,9 @@
 package me.sunnydaydev.mvvmkit.observable
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.os.Build
-import me.sunnydaydev.mvvmkit.util.notSupportedOperation
+import android.util.Log
 import java.util.function.UnaryOperator
 
 /**
@@ -14,67 +15,90 @@ class SortedMVVMList<T> private constructor(
         private val executeSorting: SortedMVVMList<T>.() -> Unit
 ): MVVMArrayList<T>() {
 
-    override fun add(element: T): Boolean {
-        silent {
-            super.add(element)
-            executeSorting()
-        }
-        notifyInserted(indexOf(element), 1)
-        return true
-    }
+    private var synchronizedSortingOperation = false
 
-    override fun addAll(elements: Collection<T>): Boolean {
+    @Synchronized
+    override fun add(element: T): Boolean = silentWithSorting(
+            action = { super.add(element) },
+            notify = { notifyChanged() }
+    )
 
-        silent {
-            super.addAll(elements)
-            executeSorting()
-        }
-
-        elements.map { indexOf(it) }
-                .sorted()
-                .forEach { notifyInserted(it, 1) }
-
-        return true
-    }
+    @Synchronized
+    override fun addAll(elements: Collection<T>): Boolean = silentWithSorting(
+            action = { super.addAll(elements) },
+            notify = { notifyChanged() }
+    )
 
     @TargetApi(Build.VERSION_CODES.N)
-    override fun replaceAll(operator: UnaryOperator<T>) {
+    @Synchronized
+    override fun replaceAll(operator: UnaryOperator<T>) = silentWithSorting(
+            action = { super.replaceAll(operator) },
+            notify = { notifyChanged() }
+    )
 
-        silent {
-            super.replaceAll(operator)
-        }
+    @Synchronized
+    override fun setAll(items: Collection<T>)  = silentWithSorting(
+            action = { super.setAll(items) },
+            notify = { notifyChanged() }
+    )
 
-        notifyChanged()
+    @Synchronized
+    override fun addAll(index: Int, elements: Collection<T>): Boolean = silentWithSorting(
+        action = { super.addAll(index, elements) },
+        notify = { elements.forEach { item -> notifyInserted(indexOf(item), 1) } }
+    )
 
+    @Synchronized
+    override fun add(index: Int, element: T) = silentWithSorting(
+            action = { super.add(index, element) },
+            notify = { notifyInserted(indexOf(element), 1) }
+    )
+
+    @Synchronized
+    override fun setAll(items: Collection<T>, startIndex: Int, count: Int) = silentWithSorting(
+            action = { super.setAll(items, startIndex, count) },
+            notify = { notifyChanged() }
+    )
+
+    @Synchronized
+    override fun retainAll(elements: Collection<T>): Boolean = silentWithSorting(
+            action = { super.retainAll(elements) },
+            notify = { notifyChanged() }
+    )
+
+    @Synchronized
+    override fun set(index: Int, element: T): T = silentWithSorting(
+            action = { super.set(index, element) },
+            notify = {
+                val newIndex = indexOf(element)
+                notifyMoved(index, newIndex, 1)
+                notifyChanged(index, 1)
+            }
+    )
+
+    @SuppressLint("LogNotTimber")
+    override fun move(fromIndex: Int, toIndex: Int) {
+        Log.e("SortedMVVMList", "Method move ignored because list is sorted.")
     }
 
-    @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun setAll(items: Collection<T>) = notSupportedOperation()
+    @SuppressLint("LogNotTimber")
+    override fun swap(fromIndex: Int, toIndex: Int) {
+        Log.e("SortedMVVMList", "Method swap ignored because list is sorted.")
+    }
 
-    @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun addAll(index: Int, elements: Collection<T>): Boolean = notSupportedOperation()
-
-    @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun add(index: Int, element: T) = notSupportedOperation()
-
-    @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun setAll(items: Collection<T>, startIndex: Int, count: Int) = notSupportedOperation()
-
-    @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun move(fromIndex: Int, toIndex: Int) = notSupportedOperation()
-
-    @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun retainAll(elements: Collection<T>): Boolean = notSupportedOperation()
-
-    @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun set(index: Int, element: T): T = notSupportedOperation()
-
-    @Deprecated(message = NOT_SUPPORTED, level = DeprecationLevel.HIDDEN)
-    override fun swap(fromIndex: Int, toIndex: Int) = notSupportedOperation()
+    @Synchronized
+    private fun <R> silentWithSorting(action: () -> R, notify: (R) -> Unit): R = silent {
+        val result = silent(action)
+        if (!synchronizedSortingOperation) {
+            synchronizedSortingOperation = true
+            executeSorting()
+            synchronizedSortingOperation = false
+            notify(result)
+        }
+        result
+    }
 
     companion object {
-
-        private const val NOT_SUPPORTED = "Operation not supported in sorted list."
 
         fun <T> create(comparator: Comparator<T>) = SortedMVVMList<T> { sortWith(comparator) }
 
