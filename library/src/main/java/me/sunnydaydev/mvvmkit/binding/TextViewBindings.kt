@@ -1,5 +1,6 @@
 package me.sunnydaydev.mvvmkit.binding
 
+import android.graphics.Typeface
 import android.text.method.MovementMethod
 import androidx.databinding.BindingAdapter
 import android.view.KeyEvent
@@ -37,6 +38,16 @@ object TextViewBindings: Bindings() {
     @BindingAdapter("movementMethod")
     fun bindMovementMethod(view: TextView, movementMethod: MovementMethod) {
         view.movementMethod = movementMethod
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["textStyle", "typeface"], requireAll = false)
+    fun bindTextStyle(view: TextView, style: Int?, typeface: Typeface?) {
+        if (style != null) {
+            view.setTypeface(typeface, style)
+        } else {
+            view.typeface = typeface
+        }
     }
 
     interface OnKeyListener {
