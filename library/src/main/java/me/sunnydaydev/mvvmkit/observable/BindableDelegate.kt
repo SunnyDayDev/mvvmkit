@@ -50,9 +50,16 @@ internal class BindableDelegate<in R: NotifiableObservable, T: Any?> (
 
         return checkedId ?: id
                 ?: dataBindingFields[property.name]?.also { checkedId = it }
+                ?: dataBindingFields[property.fallbackName]?.also { checkedId = it }
                 ?: throw IllegalStateException("Unknown bindable property.")
 
     }
+
+    private val KProperty<*>.fallbackName: String get() {
+        if (!name.startsWith("is")) return name
+        return name[2].toLowerCase() + name.substring(3)
+    }
+
 
 }
 
