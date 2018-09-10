@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.fragment.app.Fragment
+import org.parceler.Parcels
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -79,7 +80,24 @@ inline fun <reified T: Parcelable?> bundleParcellable(
         name = name,
         defaultValue = defaultValue,
         set = { bundle -> { key, value -> bundle.putParcelable(key, value) }  },
-        get = { bundle -> { key -> bundle.getParcelable(key) } }
+        get = { bundle -> { key -> bundle.getParcelable(key)!! } }
+)
+
+
+inline fun <reified T: Any?> bundleParcels(
+        name: String,
+        noinline defaultValue: () -> T = ::bundleCommonDefaultValue
+) = bundleProperty<T, Any>(
+        name = name,
+        defaultValue = defaultValue,
+        set = { bundle -> { key, value ->
+            val parceled = Parcels.wrap(value)
+            bundle.putParcelable(key, parceled)
+        }  },
+        get = { bundle -> { key ->
+            val parceled: Parcelable = bundle.getParcelable(key)!!
+            Parcels.unwrap(parceled)
+        } }
 )
 
 inline fun <reified T: TNN?, TNN: Any> bundleProperty(
