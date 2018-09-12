@@ -9,6 +9,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
+import me.sunnydaydev.mvvmkit.util.PermissionRequestResultHandler
 import me.sunnydaydev.mvvmkit.util.rx.invoke
 
 /**
@@ -29,13 +30,13 @@ interface PermissionsInteractor {
 
     fun waitPermissionCheck(request: PermissionRequest): Single<Boolean>
 
-    class ResultHandler {
+    class ResultHandler: PermissionRequestResultHandler {
 
         private val resultSubject: Subject<PermissionResultEvent> = PublishSubject.create()
 
         internal val result = resultSubject.hide()
 
-        fun onRequestPermissionsResult(requestCode: Int,
+        override fun onRequestPermissionsResult(requestCode: Int,
                                        permissions: Array<out String>,
                                        grantResults: IntArray) {
 

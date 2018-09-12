@@ -7,8 +7,10 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import me.sunnydaydev.mvvmkit.util.LateInitValue
+import me.sunnydaydev.mvvmkit.util.PermissionRequestResultHandler
 import me.sunnydaydev.mvvmkit.util.lateinit
 import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
+import timber.log.Timber
 
 /**
  * Created by sunny on 03.05.2018.
@@ -38,6 +40,15 @@ abstract class BaseMVVMActivity: AppCompatActivity() {
 
     fun removeOnBackPressedListener(listener: OnBackPressedListener) {
         onBackPressedListeners.remove(listener)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<out String>,
+                                            grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        (application as? PermissionRequestResultHandler)
+                ?.onRequestPermissionsResult(requestCode, permissions, grantResults)
+                ?: Timber.i("Application not implement PermissionRequestResultHandler.")
     }
 
 }
