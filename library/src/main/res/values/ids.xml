@@ -16,4 +16,6 @@
     <item name="binding_webview_url" type="id"/>
     <item name="binding_webview_data" type="id"/>
 
+    <item name="dialog_interactor_input_view" type="id"/>
+
 </resources>
