@@ -1,6 +1,10 @@
+@file:Suppress("DEPRECATION")
+
 package me.sunnydaydev.mvvmkit.component
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.DatePickerDialog
 import android.app.ProgressDialog
 import androidx.appcompat.app.AlertDialog
 import android.content.Context
@@ -9,14 +13,19 @@ import android.text.InputType
 import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
+import android.widget.DatePicker
 import android.widget.EditText
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.subjects.SingleSubject
 import me.sunnydaydev.mvvmkit.R
 import me.sunnydaydev.mvvmkit.component.DialogInteractor.Action
 import me.sunnydaydev.mvvmkit.component.DialogInteractor.Button
 import me.sunnydaydev.mvvmkit.component.DialogInteractor.InputCheckResult
 import me.sunnydaydev.mvvmkit.util.rx.invoke
+import java.util.*
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 12.09.2018.
@@ -48,8 +57,15 @@ interface DialogInteractor {
     fun showProgress(
             title: String?,
             message: String?,
+            cancellable: Boolean = false,
             theme: Int? = null
     ): Completable
+
+    fun chooseDate(initialDate: Date = Date(),
+                   maxDate: Date? = null,
+                   minDate: Date? = null,
+                   cancellable: Boolean = true,
+                   theme: Int? = null): Maybe<Date>
 
     enum class Button { POSITIVE, NEUTRAL, NEGATIVE }
 
@@ -172,7 +188,7 @@ interface DialogInteractor {
     object Factory {
 
         fun create(activityTracker: ActivityTracker, config: Config): DialogInteractor =
-                DialogInteractorImpl(activityTracker, config)
+                BaseDialogInteractor(activityTracker, config)
 
     }
 
@@ -189,7 +205,7 @@ fun DialogInteractor.showMessage(
 ): Maybe<Button> = showMessage(
         title, message, negativeAction, neutralAction, positiveAction, cancellable, theme)
 
-internal class DialogInteractorImpl constructor(
+open class BaseDialogInteractor constructor(
         private val activityTracker: ActivityTracker,
         private val config: DialogInteractor.Config
 ): DialogInteractor {
@@ -202,64 +218,65 @@ internal class DialogInteractorImpl constructor(
             positiveAction: Action<T>?,
             cancellable: Boolean,
             theme: Int?
-    ) = maybeDialog<T> { context, finalizers ->
+    ) = maybeDialog{ activity ->
 
-        Single.create { emitter ->
+        val subject = subject<T>()
 
-            val checkedTheme = theme ?: config.defaultDialogTheme
-            val dialogBuilder =
-                    if (checkedTheme != null) AlertDialog.Builder(context, checkedTheme)
-                    else AlertDialog.Builder(context)
+        val checkedTheme = theme ?: config.defaultDialogTheme
+        val dialogBuilder =
+                if (checkedTheme != null) AlertDialog.Builder(activity, checkedTheme)
+                else AlertDialog.Builder(activity)
 
-            dialogBuilder
-                    .setTitle(title)
-                    .setMessage(message)
-                    .let {
+        val dialog = dialogBuilder
+                .setTitle(title)
+                .setMessage(message)
+                .let {
 
-                        if (negativeAction == null) return@let it
+                    if (negativeAction == null) return@let it
 
-                        val text = negativeAction.textProvider(
-                                context,
-                                config.defaultNegativeText(context)
-                        )
-                        it.setNegativeButton(text) { _, _ ->
-                            emitter.success(negativeAction.value)
-                        }
-
+                    val text = negativeAction.textProvider(
+                            activity,
+                            config.defaultNegativeText(activity)
+                    )
+                    it.setNegativeButton(text) { _, _ ->
+                        subject(negativeAction.value)
                     }
-                    .let {
 
-                        if (neutralAction == null) return@let it
+                }
+                .let {
 
-                        val text = neutralAction.textProvider(
-                                context,
-                                config.defaultNeutralText(context)
-                        )
-                        it.setNeutralButton(text) { _, _ ->
-                            emitter.success(neutralAction.value)
-                        }
+                    if (neutralAction == null) return@let it
 
+                    val text = neutralAction.textProvider(
+                            activity,
+                            config.defaultNeutralText(activity)
+                    )
+                    it.setNeutralButton(text) { _, _ ->
+                        subject(neutralAction.value)
                     }
-                    .let {
 
-                        if (positiveAction == null) return@let it
+                }
+                .let {
 
-                        val text = positiveAction.textProvider(
-                                context,
-                                config.defaultPositiveText(context)
-                        )
-                        it.setPositiveButton(text) { _, _ ->
-                            emitter.success(positiveAction.value)
-                        }
+                    if (positiveAction == null) return@let it
 
+                    val text = positiveAction.textProvider(
+                            activity,
+                            config.defaultPositiveText(activity)
+                    )
+                    it.setPositiveButton(text) { _, _ ->
+                        subject(positiveAction.value)
                     }
-                    .setCancelable(cancellable)
-                    .setOnCancelListener {
-                        emitter.cancelled()
-                    }
-                    .show()
-                    .also { finalizers.add { it.dismiss() } }
 
+                }
+                .setCancelable(cancellable)
+                .setOnCancelListener {
+                    subject.cancelled()
+                }
+                .show()
+
+        subject.doFinally {
+            dialog.dismiss()
         }
 
     }
@@ -272,124 +289,175 @@ internal class DialogInteractorImpl constructor(
             inputViewType: Int,
             validate: (String) -> InputCheckResult,
             cancellable: Boolean,
-            theme: Int?) =  maybeDialog<String> {
-        activity, finalizers ->
+            theme: Int?) =  maybeDialog { activity ->
 
-        Single.create { emitter ->
+        val subject = subject<String>()
 
-            val checkedTheme = theme ?: config.defaultDialogTheme
+        val checkedTheme = theme ?: config.defaultDialogTheme
 
-            val builder =
-                    if (checkedTheme != null) AlertDialog.Builder(activity, checkedTheme)
-                    else AlertDialog.Builder(activity)
+        val builder =
+                if (checkedTheme != null) AlertDialog.Builder(activity, checkedTheme)
+                else AlertDialog.Builder(activity)
 
-            builder.setTitle(title)
-                    .setCancelable(cancellable)
-                    .setOnCancelListener {
-                        emitter.cancelled()
-                    }
-
-            val (container, input) = config.inputViewProvider(inputViewType, activity)
-
-            input.apply {
-
-                this.inputType = inputType
-
-                setText(initialValue)
-
-                addTextChangedListener(object : TextWatcher {
-
-                    override fun afterTextChanged(p0: Editable) {}
-
-                    override fun beforeTextChanged(p0: CharSequence, p1: Int, p2: Int, p3: Int) {}
-
-                    override fun onTextChanged(p0: CharSequence, p1: Int, p2: Int, p3: Int) {
-                        if (this@apply.error != null) this@apply.error = null
-                    }
-
-                })
-
-            }
-
-            container.layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-
-            builder.setView(container)
-
-            builder.setNegativeButton(config.defaultNegativeText(activity)) { dialog, _ ->
-                dialog.cancel()
-            }
-
-            builder.setPositiveButton(config.defaultNegativeText(activity), null)
-
-            builder.setOnCancelListener { emitter.cancelled() }
-
-            val dialog = builder.create()
-
-            dialog.setOnShowListener { _ ->
-
-                val button = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-
-                button.setOnClickListener { _ ->
-
-                    val text = input.text.toString()
-                    val checkResult = validate(text)
-
-                    when(checkResult) {
-                        is InputCheckResult.Success -> emitter.success(text)
-                        is InputCheckResult.NotValid -> input.error = checkResult.message
-                    }
-
+        builder.setTitle(title)
+                .setCancelable(cancellable)
+                .setOnCancelListener {
+                    subject.cancelled()
                 }
 
-                input.requestFocus()
-                input.setSelection(input.text?.length ?: 0)
+        val (container, input) = config.inputViewProvider(inputViewType, activity)
+
+        input.apply {
+
+            this.inputType = inputType
+
+            setText(initialValue)
+
+            addTextChangedListener(object : TextWatcher {
+
+                override fun afterTextChanged(p0: Editable) {}
+
+                override fun beforeTextChanged(p0: CharSequence, p1: Int, p2: Int, p3: Int) {}
+
+                override fun onTextChanged(p0: CharSequence, p1: Int, p2: Int, p3: Int) {
+                    if (this@apply.error != null) this@apply.error = null
+                }
+
+            })
+
+        }
+
+        container.layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        builder.setView(container)
+
+        builder.setNegativeButton(config.defaultNegativeText(activity)) { dialog, _ ->
+            dialog.cancel()
+        }
+
+        builder.setPositiveButton(config.defaultNegativeText(activity), null)
+
+        builder.setOnCancelListener { subject.cancelled() }
+
+        val dialog = builder.create()
+
+        dialog.setOnShowListener { _ ->
+
+            val button = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+
+            button.setOnClickListener { _ ->
+
+                val text = input.text.toString()
+                val checkResult = validate(text)
+
+                when(checkResult) {
+                    is InputCheckResult.Success -> subject(text)
+                    is InputCheckResult.NotValid -> input.error = checkResult.message
+                }
 
             }
 
-            finalizers.add { dialog.dismiss() }
-            dialog.show()
+            input.requestFocus()
+            input.setSelection(input.text?.length ?: 0)
 
+        }
+
+        dialog.show()
+
+        subject.doFinally {
+            dialog.dismiss()
         }
 
     }
 
     override fun showProgress(title: String?,
                               message: String?,
-                              theme: Int?) = completableDialog { context, finalizers ->
-        Single.create { _ ->
+                              cancellable: Boolean,
+                              theme: Int?) = completableDialog { activity ->
 
-            val checkedTheme = theme ?: config.defaultProgressDialogTheme
-            val dialog =
-                    if (checkedTheme != null) ProgressDialog(context, checkedTheme)
-                    else ProgressDialog(context)
+        val checkedTheme = theme ?: config.defaultProgressDialogTheme
+        val dialog =
+                if (checkedTheme != null) ProgressDialog(activity, checkedTheme)
+                else ProgressDialog(activity)
 
-            dialog
-                    .apply {
-                        isIndeterminate = true
-                        setCancelable(false)
-                        setTitle(title)
-                        setMessage(message)
+        dialog.apply {
+            isIndeterminate = true
+            setCancelable(false)
+            setTitle(title)
+            setMessage(message)
+        }
 
-                        show()
-                    }
-                    .also { finalizers.add { it.dismiss() } }
+        dialog.show()
+
+        never<Any>().doFinally {
+            dialog.dismiss()
+        }
+
+    }
+
+    override fun chooseDate(initialDate: Date,
+                            maxDate: Date?,
+                            minDate: Date?,
+                            cancellable: Boolean,
+                            theme: Int?): Maybe<Date> = maybeDialog { activity ->
+
+        val subject = subject<Date>()
+
+        val checkedTheme = theme ?: config.defaultDialogTheme
+
+        val calendar = Calendar.getInstance().apply {
+            time = initialDate
+        }
+
+        val listener: (picker: DatePicker, year: Int, month: Int, day: Int) -> Unit = {_, y, m, d ->
+
+            calendar.set(Calendar.DAY_OF_MONTH, d)
+            calendar.set(Calendar.MONTH, m)
+            calendar.set(Calendar.YEAR, y)
+
+            subject(calendar.time)
 
         }
+
+        val d = calendar.get(Calendar.DAY_OF_MONTH)
+        val m = calendar.get(Calendar.MONTH)
+        val y = calendar.get(Calendar.YEAR)
+
+        val dialog =
+                if (checkedTheme == null) DatePickerDialog(activity, listener, y, m, d)
+                else DatePickerDialog(activity, checkedTheme, listener, y, m, d)
+
+        dialog.apply {
+            setCancelable(cancellable)
+            setOnCancelListener { subject.cancelled() }
+        }
+
+        dialog.setOnShowListener {
+            if (maxDate != null) dialog.datePicker.maxDate = max(maxDate.time, initialDate.time)
+            if (minDate != null) dialog.datePicker.minDate = min(minDate.time, initialDate.time)
+        }
+
+        dialog.show()
+
+        subject.doFinally {
+            dialog.dismiss()
+        }
+
     }
 
     protected fun completableDialog(
             waitResumedActivity: Boolean = true,
-            dialogSource: (Context, MutableSet<() -> Unit>) -> Single<DialogResult<Any>>
+            dialogSource: (activity: Activity) -> Single<DialogResult<Any>>
     ): Completable = createDialogSource(waitResumedActivity, dialogSource)
             .ignoreElement()
 
     @Suppress("unused")
     protected fun <T> maybeDialog(
             waitResumedActivity: Boolean = true,
-            dialogSource: (Context, MutableSet<() -> Unit>) -> Single<DialogResult<T>>
+            dialogSource: (activity: Activity) -> Single<DialogResult<T>>
     ): Maybe<T> = createDialogSource(waitResumedActivity, dialogSource)
             .flatMapMaybe {
                 when(it) {
@@ -401,7 +469,7 @@ internal class DialogInteractorImpl constructor(
     @Suppress("unused")
     protected fun <T> singleDialog(
             waitResumedActivity: Boolean = true,
-            dialogSource:(Context, MutableSet<() -> Unit>) -> Single<DialogResult<T>>
+            dialogSource: (activity: Activity) -> Single<DialogResult<T>>
     ): Single<T> = createDialogSource(waitResumedActivity, dialogSource)
             .flatMap {
                 when(it) {
@@ -413,7 +481,7 @@ internal class DialogInteractorImpl constructor(
 
     private fun <T> createDialogSource(
             waitResumedActivity: Boolean = true,
-            dialogSource: (Context, MutableSet<() -> Unit>) -> Single<DialogResult<T>>
+            dialogSource: (activity: Activity) -> Single<DialogResult<T>>
     ): Single<DialogResult<T>> {
 
         return activityTracker.lastResumedActivity
@@ -423,19 +491,16 @@ internal class DialogInteractorImpl constructor(
                             ?: return@switchMapSingle if (waitResumedActivity) Single.never()
                             else Single.error(IllegalStateException("No any activity resumed."))
 
-                    val finalizers = mutableSetOf<() -> Unit>()
-
-                    dialogSource(context, finalizers)
+                    Single.defer { dialogSource(context) }
                             .subscribeOn(AndroidSchedulers.mainThread())
-                            .doFinally { finalizers.forEach { it() } }
 
                 }
                 .firstOrError()
 
     }
 
-    protected fun <T> SingleEmitter<DialogResult<T>>.cancelled() = this(DialogResult.Cancelled())
-    protected fun <T> SingleEmitter<DialogResult<T>>.success(result: T) =
+    protected fun <T> SingleSubject<DialogResult<T>>.cancelled() = this(DialogResult.Cancelled())
+    operator protected fun <T> SingleSubject<DialogResult<T>>.invoke(result: T) =
             this(DialogResult.Success(result))
 
     @Suppress("unused")
@@ -443,5 +508,9 @@ internal class DialogInteractorImpl constructor(
         class Cancelled<T>: DialogResult<T>()
         data class Success<T>(val result: T): DialogResult<T>()
     }
+
+    protected fun <T> subject(): SingleSubject<DialogResult<T>> = SingleSubject.create()
+
+    protected fun <T> never(): Single<DialogResult<T>> = Single.never()
 
 }
