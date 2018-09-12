@@ -20,7 +20,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.SingleSubject
 import me.sunnydaydev.mvvmkit.R
 import me.sunnydaydev.mvvmkit.component.DialogInteractor.Action
-import me.sunnydaydev.mvvmkit.component.DialogInteractor.Button
 import me.sunnydaydev.mvvmkit.component.DialogInteractor.InputCheckResult
 import me.sunnydaydev.mvvmkit.util.rx.invoke
 import java.util.*
@@ -55,8 +54,8 @@ interface DialogInteractor {
     ): Maybe<String>
 
     fun showProgress(
-            title: String?,
-            message: String?,
+            title: String? = null,
+            message: String? = null,
             cancellable: Boolean = false,
             theme: Int? = null
     ): Completable
@@ -70,20 +69,45 @@ interface DialogInteractor {
     enum class Button { POSITIVE, NEUTRAL, NEGATIVE }
 
     class Action<T> internal constructor(
-            internal val value: T,
-            internal val textProvider: (ctx: Context, def: String) -> String) {
+            internal val value: (Button) -> T,
+            internal val text: (ctx: Context, def: String) -> String) {
 
         companion object {
 
-            fun <T> create(text: String, value: T) = Action(value) { _, _ ->text }
+            fun <T> create(text: String, value: T) = Action(
+                    value = { value },
+                    text = { _, _ -> text }
+            )
 
-            fun <T> create(textId: Int, value: T) =
-                    Action(value) { ctx, _  -> ctx.getString(textId) }
+            fun <T> create(textId: Int, value: T) = Action(
+                    value = { value },
+                    text = { ctx, _  -> ctx.getString(textId) }
+            )
 
-            fun <T> create(value: T, textProvider: () -> String) =
-                    Action(value) { _, _ -> textProvider() }
+            fun <T> create(value: T, text: () -> String) = Action(
+                    value = { value },
+                    text = { _, _ -> text() }
+            )
 
-            fun <T> create(value: T) = Action(value) { _, def -> def }
+            fun <T> create(value: T) = Action(
+                    value = { value },
+                    text = { _, def -> def }
+            )
+
+            fun simple(textId: Int) = Action(
+                    text = { ctx, _  -> ctx.getString(textId) },
+                    value = { it }
+            )
+
+            fun simple(text: String) = Action(
+                    text = { _, _  -> text },
+                    value = { it }
+            )
+
+            fun simple() = Action(
+                    text = { _, def  -> def },
+                    value = { it }
+            )
 
         }
 
@@ -194,17 +218,6 @@ interface DialogInteractor {
 
 }
 
-fun DialogInteractor.showMessage(
-        title: String? = null,
-        message: String?,
-        negativeAction: Action<Button>? = null,
-        neutralAction: Action<Button>? = null,
-        positiveAction: Action<Button>? = Action.create(Button.POSITIVE),
-        cancellable: Boolean = true,
-        theme: Int? = null
-): Maybe<Button> = showMessage(
-        title, message, negativeAction, neutralAction, positiveAction, cancellable, theme)
-
 open class BaseDialogInteractor constructor(
         private val activityTracker: ActivityTracker,
         private val config: DialogInteractor.Config
@@ -234,12 +247,12 @@ open class BaseDialogInteractor constructor(
 
                     if (negativeAction == null) return@let it
 
-                    val text = negativeAction.textProvider(
+                    val text = negativeAction.text(
                             activity,
                             config.defaultNegativeText(activity)
                     )
                     it.setNegativeButton(text) { _, _ ->
-                        subject(negativeAction.value)
+                        subject(negativeAction.value(DialogInteractor.Button.NEGATIVE))
                     }
 
                 }
@@ -247,12 +260,12 @@ open class BaseDialogInteractor constructor(
 
                     if (neutralAction == null) return@let it
 
-                    val text = neutralAction.textProvider(
+                    val text = neutralAction.text(
                             activity,
                             config.defaultNeutralText(activity)
                     )
                     it.setNeutralButton(text) { _, _ ->
-                        subject(neutralAction.value)
+                        subject(neutralAction.value(DialogInteractor.Button.NEUTRAL))
                     }
 
                 }
@@ -260,12 +273,12 @@ open class BaseDialogInteractor constructor(
 
                     if (positiveAction == null) return@let it
 
-                    val text = positiveAction.textProvider(
+                    val text = positiveAction.text(
                             activity,
                             config.defaultPositiveText(activity)
                     )
                     it.setPositiveButton(text) { _, _ ->
-                        subject(positiveAction.value)
+                        subject(positiveAction.value(DialogInteractor.Button.POSITIVE))
                     }
 
                 }
