@@ -187,7 +187,7 @@ interface DialogInteractor {
 
             fun registerInputView(
                     type: Int = Config.DEFAULT_INPUT_VIEW,
-                    provider: (Context) -> Pair<View, EditText>) {
+                    provider: (Context) -> Pair<View, EditText>) = apply {
                 inputViewProvidersMap[type] = provider
             }
 
