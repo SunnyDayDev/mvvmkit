@@ -47,7 +47,7 @@ interface DialogInteractor {
             title: String? = null,
             initialValue: String? = null,
             inputType: Int = InputType.TYPE_CLASS_TEXT,
-            inputViewType: Int = -1,
+            inputViewType: Int = Config.DEFAULT_INPUT_VIEW,
             validate: (String) -> InputCheckResult = { InputCheckResult.Success },
             cancellable: Boolean = true,
             theme: Int? = null
@@ -130,6 +130,12 @@ interface DialogInteractor {
             internal val inputViewProvider: (type: Int, Context) -> Pair<View, EditText>
     ) {
 
+        companion object {
+
+            const val DEFAULT_INPUT_VIEW = -1
+            
+        }
+
         class Builder() {
 
             private var defaultDialogTheme: Int? = null
@@ -144,7 +150,8 @@ interface DialogInteractor {
             private var defaultNegativeText: (Context) -> String =
                     { it.getString(android.R.string.no) }
 
-            private val inputViewProvidersMap = mutableMapOf<Int, (Context) -> Pair<View, EditText>>()
+            private val inputViewProvidersMap =
+                    mutableMapOf<Int, (Context) -> Pair<View, EditText>>()
 
             fun defaultDialogTheme(theme: Int) = apply {
                 defaultDialogTheme = theme
@@ -178,7 +185,9 @@ interface DialogInteractor {
                 defaultNegativeText = { text }
             }
 
-            fun registerInputView(type: Int, provider: (Context) -> Pair<View, EditText>) {
+            fun registerInputView(
+                    type: Int = Config.DEFAULT_INPUT_VIEW,
+                    provider: (Context) -> Pair<View, EditText>) {
                 inputViewProvidersMap[type] = provider
             }
 
