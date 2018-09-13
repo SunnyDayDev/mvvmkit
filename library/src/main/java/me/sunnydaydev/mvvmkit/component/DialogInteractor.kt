@@ -133,7 +133,7 @@ interface DialogInteractor {
         companion object {
 
             const val DEFAULT_INPUT_VIEW = -1
-            
+
         }
 
         class Builder() {
@@ -221,16 +221,16 @@ interface DialogInteractor {
     object Factory {
 
         fun create(activityTracker: ActivityTracker, config: Config): DialogInteractor =
-                BaseDialogInteractor(activityTracker, config)
+                DefaultDialogInteractor(activityTracker, config)
 
     }
 
 }
 
-open class BaseDialogInteractor constructor(
-        private val activityTracker: ActivityTracker,
+open class DefaultDialogInteractor constructor(
+        activityTracker: ActivityTracker,
         private val config: DialogInteractor.Config
-): DialogInteractor {
+): BaseDialogInteractor(activityTracker), DialogInteractor {
 
     override fun <T> showMessage(
             title: String?,
@@ -470,6 +470,12 @@ open class BaseDialogInteractor constructor(
 
     }
 
+}
+
+open class BaseDialogInteractor(
+        private val activityTracker: ActivityTracker
+) {
+
     protected fun completableDialog(
             waitResumedActivity: Boolean = true,
             dialogSource: (activity: Activity) -> Single<DialogResult<Any>>
@@ -496,7 +502,7 @@ open class BaseDialogInteractor constructor(
             .flatMap {
                 when(it) {
                     is DialogResult.Cancelled ->
-                        Single.error(IllegalStateException("Dialog was cancelled."))
+                        Single.error(UIInteractorError.Cancelled())
                     is DialogResult.Success -> Single.just(it.result)
                 }
             }
@@ -511,7 +517,7 @@ open class BaseDialogInteractor constructor(
 
                     val context = optional.value
                             ?: return@switchMapSingle if (waitResumedActivity) Single.never()
-                            else Single.error(IllegalStateException("No any activity resumed."))
+                            else Single.error(UIInteractorError.ViewNotPresent())
 
                     Single.defer { dialogSource(context) }
                             .subscribeOn(AndroidSchedulers.mainThread())
