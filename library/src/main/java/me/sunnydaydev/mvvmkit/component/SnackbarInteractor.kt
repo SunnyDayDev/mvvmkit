@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.annotation.StringRes
 import com.google.android.material.snackbar.Snackbar
@@ -24,6 +25,7 @@ interface SnackbarInteractor {
 
     fun make(
             message: String,
+            maxLines: Int? = null,
             duration: Int = Snackbar.LENGTH_LONG,
             @IdRes viewId: Int = View.NO_ID
     ): Completable
@@ -31,6 +33,8 @@ interface SnackbarInteractor {
     fun <T> make(
             message: String,
             action: Action<T>,
+            maxLines: Int? = null,
+            @ColorInt actionColor: Int? = null,
             duration: Int = Snackbar.LENGTH_LONG,
             @IdRes viewId: Int = View.NO_ID
     ): Maybe<T>
@@ -56,19 +60,45 @@ interface SnackbarInteractor {
 
     object Factory {
 
-        fun create(activityTracker: ActivityTracker): SnackbarInteractor =
-                DefaultSnackBarInteractor(activityTracker)
+        fun create(activityTracker: ActivityTracker, config: Config): SnackbarInteractor =
+                DefaultSnackBarInteractor(activityTracker, config)
+
+    }
+
+    data class Config internal constructor(
+            internal val maxLines: Int?,
+            internal val actionColor: Int?
+    ) {
+
+        class Builder {
+
+            private var maxLines: Int? = null
+            private var actionColor: Int? = null
+
+            fun defaultMaxLines(lines: Int) = apply {
+                maxLines = lines
+            }
+
+            fun defaultActionColor(@ColorInt color: Int) = apply {
+                actionColor = color
+            }
+
+            fun build() = Config(maxLines, actionColor)
+
+        }
 
     }
 
 }
  
-internal class DefaultSnackBarInteractor(
-        activityTracker: ActivityTracker
+open class DefaultSnackBarInteractor(
+        activityTracker: ActivityTracker,
+        private val config: SnackbarInteractor.Config
 ): BaseSnackbarInteractor(activityTracker), SnackbarInteractor {
 
     override fun make(
             message: String,
+            maxLines: Int?,
             duration: Int,
             @IdRes viewId: Int
     ): Completable = completableSnackbar { activity ->
@@ -77,9 +107,10 @@ internal class DefaultSnackBarInteractor(
 
         val subject = CompletableSubject.create()
 
-        val snackbar = multilineSnackbar(view, message, duration).apply {
-            addOnDismissedCallback { subject.onComplete() }
-        }
+        val snackbar = snackbar(view, message, duration, maxLines)
+                .apply {
+                    addOnDismissedCallback { subject.onComplete() }
+                }
 
         snackbar.show()
 
@@ -92,6 +123,8 @@ internal class DefaultSnackBarInteractor(
     override fun <T> make(
             message: String,
             action: SnackbarInteractor.Action<T>,
+            maxLines: Int?,
+            actionColor: Int?,
             duration: Int,
             @IdRes viewId: Int
     ): Maybe<T> = actionSnackbar { activity ->
@@ -100,11 +133,18 @@ internal class DefaultSnackBarInteractor(
 
         val subject = MaybeSubject.create<T>()
 
+        val snackbar = snackbar(view, message, duration, maxLines ?: config.maxLines)
+                .apply {
+                    setAction(action.text(activity)) { subject(action.value) }
 
-        val snackbar = multilineSnackbar(view, message, duration).apply {
-            setAction(action.text(activity)) { subject(action.value) }
-            addOnDismissedCallback { subject() }
-        }
+                    val checkedColor = actionColor ?: config.actionColor
+
+                    if (checkedColor != null) {
+                        setActionTextColor(checkedColor)
+                    }
+
+                    addOnDismissedCallback { subject() }
+                }
 
         snackbar.show()
 
@@ -163,9 +203,15 @@ open class BaseSnackbarInteractor(
         return activityView.findViewById(id) ?: activityView
     }
 
-    protected fun multilineSnackbar(view: View, message: String, duration: Int): Snackbar =
-            Snackbar.make(view, message, duration).apply {
-                textView?.maxLines = Int.MAX_VALUE
-            }
+    protected fun snackbar(
+            view: View,
+            message: String,
+            duration: Int,
+            maxLines: Int?
+    ): Snackbar = Snackbar.make(view, message, duration).apply {
+        if (maxLines != null) {
+            textView?.maxLines = maxLines
+        }
+    }
 
 }
