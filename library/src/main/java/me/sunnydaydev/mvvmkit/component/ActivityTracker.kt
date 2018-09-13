@@ -49,6 +49,7 @@ internal class ActivityTrackerImpl: ActivityTracker,
 
     override val inForeground: Observable<Boolean> get() =
         lastStartedActivity.map { it.value != null }
+                .distinctUntilChanged()
 
     override fun onActivityCreated(activity: Activity, savedState: Bundle?) {
         createdActivities + activity
@@ -84,5 +85,6 @@ internal class ActivityTrackerImpl: ActivityTracker,
 
     private fun last(source: Observable<List<Activity>>): Observable<Optional<Activity>> =
             source.map { Optional(it.lastOrNull()) }
+                    .distinctUntilChanged()
 
 }
