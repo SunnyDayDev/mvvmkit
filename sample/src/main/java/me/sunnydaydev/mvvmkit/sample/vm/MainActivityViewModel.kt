@@ -3,7 +3,6 @@ package me.sunnydaydev.mvvmkit.sample.vm
 import androidx.databinding.Bindable
 import androidx.lifecycle.*
 import io.reactivex.Completable
-import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import me.sunnydaydev.mvvmkit.binding.WebViewUrl
@@ -46,7 +45,7 @@ class MainActivityViewModel(
 
     @get:Bindable var webviewUrl = Command<WebViewUrl>()
 
-    val transitionCommand = PureCommand()
+    val transitionCommand = Command.pure()
 
     private val orangeFactory: ColorsFactory = OrangeViewModel.Factory()
     private val greenFactory: ColorsFactory  = GreenViewModel.Factory()
@@ -99,7 +98,7 @@ class MainActivityViewModel(
     }
 
     fun onTransition() {
-        transitionCommand.fire()
+        transitionCommand()
     }
 
     fun onRefresh() {

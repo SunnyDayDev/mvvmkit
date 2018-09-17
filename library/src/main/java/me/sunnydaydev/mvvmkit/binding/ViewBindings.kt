@@ -11,8 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import me.sunnydaydev.mvvmkit.observable.Command
-import me.sunnydaydev.mvvmkit.observable.PureCommand
-import me.sunnydaydev.mvvmkit.observable.TargetedPureCommand
+import me.sunnydaydev.mvvmkit.observable.TargetedCommand
 
 /**
  * Created by sunny on 30.05.2018.
@@ -53,7 +52,7 @@ object ViewBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter(value = ["focusCommand", "focusTarget"], requireAll = true)
-    fun <T: Any> bindFocusCommand(view: View, focus: TargetedPureCommand<T>, target: T) {
+    fun <T: Any> bindFocusCommand(view: View, focus: TargetedCommand<Unit, T>, target: T) {
 
         focus.handle(target) {
             view.requestFocus()
@@ -63,7 +62,7 @@ object ViewBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter(value = ["focusCommand"])
-    fun bindFocusPureCommand(view: View, focus: PureCommand) {
+    fun bindFocusPureCommand(view: View, focus: Command<Unit>) {
         focus.handle { view.requestFocus() }
     }
 
@@ -157,7 +156,7 @@ object ViewBindings: Bindings() {
     )
     fun bindTransitionBackgroundCommand(
             view: View,
-            command: PureCommand?,
+            command: Command<Unit>?,
             reverse: Boolean?,
             duration: Int?
     ) = command?.handle {
@@ -176,7 +175,7 @@ object ViewBindings: Bindings() {
     )
     fun bindTransitionForegroundCommand(
             view: View,
-            command: PureCommand?,
+            command: Command<Unit>?,
             reverse: Boolean?,
             duration: Int?
     ) {

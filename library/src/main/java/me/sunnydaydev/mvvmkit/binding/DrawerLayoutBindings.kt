@@ -6,7 +6,6 @@ import androidx.core.view.GravityCompat
 import androidx.databinding.BindingAdapter
 import androidx.drawerlayout.widget.DrawerLayout
 import me.sunnydaydev.mvvmkit.observable.Command
-import me.sunnydaydev.mvvmkit.observable.PureCommand
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 03.08.2018.
@@ -26,15 +25,15 @@ object DrawerLayoutBindings: Bindings() {
     )
     @SuppressLint("RtlHardcoded")
     fun bindCloseOpenCommands(view: DrawerLayout,
-                              openLeft: PureCommand?,
-                              openStart: PureCommand?,
-                              openRight: PureCommand?,
-                              openEnd: PureCommand?,
+                              openLeft: Command<Unit>?,
+                              openStart: Command<Unit>?,
+                              openRight: Command<Unit>?,
+                              openEnd: Command<Unit>?,
                               openGravity: Command<Int>?,
-                              closeLeft: PureCommand?,
-                              closeStart: PureCommand?,
-                              closeRight: PureCommand?,
-                              closeEnd: PureCommand?,
+                              closeLeft: Command<Unit>?,
+                              closeStart: Command<Unit>?,
+                              closeRight: Command<Unit>?,
+                              closeEnd: Command<Unit>?,
                               closeGravity: Command<Int>?,
                               animateOpenClose: Boolean?) {
 

@@ -9,10 +9,10 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.databinding.BindingAdapter
-import androidx.databinding.BindingConversion
 import androidx.databinding.adapters.ListenerUtil
 import me.sunnydaydev.mvvmkit.R
 import me.sunnydaydev.mvvmkit.observable.Command
+import me.sunnydaydev.mvvmkit.observable.CommandForResult
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 30.07.2018.
@@ -181,6 +181,25 @@ object WebViewBindings: Bindings() {
 
         (inState.getParcelable(WEBVIEW_URL) as? WebViewUrl) ?.let {
             webView.setTag(R.id.binding_webview_url, it)
+        }
+
+    }
+
+    @JvmStatic
+    @BindingAdapter("goBackCommand")
+    internal fun bindGoBackCommand(view: WebView,
+                                   command: CommandForResult<Unit, Boolean>) {
+
+        command.handle { _ ->
+
+            if (!view.canGoBack() || view.copyBackForwardList().let {
+                        it.currentIndex == 1 && it.getItemAtIndex(0).originalUrl == "about:blank"
+                    }) return@handle false
+
+            view.goBack()
+
+            return@handle true
+
         }
 
     }

@@ -1,51 +1,30 @@
 package me.sunnydaydev.mvvmkit.observable
 
 import androidx.databinding.BaseObservable
+import me.sunnydaydev.mvvmkit.util.Holder
+import timber.log.Timber
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Created by sunny on 31.05.2018.
  * mail: mail@sunnydaydev.me
  */
 
-object Event
-
-internal sealed class OptionalBox<T>{
-    class Empty<T>: OptionalBox<T>()
-    data class Value<T>(val value: T): OptionalBox<T>()
-}
-
 open class BaseCommand<T>: BaseObservable() {
 
-    internal var event: OptionalBox<T> = OptionalBox.Empty()
+    internal var value = AtomicReference<Holder<T>?>()
 
     protected fun internalFire(event: T) {
-        this.event = OptionalBox.Value(event)
+        value.set(Holder(event))
         notifyChange()
     }
 
     protected fun internalHandle(handleAction: (T) -> Boolean) {
-        val event = this.event
-        if (event is OptionalBox.Value && handleAction(event.value)) {
-            clear()
+        val event = value.getAndSet(null)
+        if (event != null) {
+            handleAction(event.value)
         }
     }
-
-    fun clear() {
-        event = OptionalBox.Empty()
-    }
-
-}
-
-class PureCommand: BaseCommand<Event>() {
-
-    fun fire() = internalFire(Event)
-
-    fun handle(action: () -> Unit) = internalHandle {
-        action()
-        true
-    }
-
-    operator fun invoke() = fire()
 
 }
 
@@ -58,8 +37,11 @@ class Command<T>: BaseCommand<T>() {
         true
     }
 
+    companion object {
 
-    operator fun invoke(event: T) = fire(event)
+        fun pure() = Command<Unit>()
+
+    }
 
 }
 
@@ -76,23 +58,43 @@ class TargetedCommand<E, T: Any>: BaseCommand<Pair<E, T>>() {
         }
     }
 
-    operator fun invoke(event: E, target: T) = fire(event, target)
+    companion object {
 
-}
+        fun <T: Any> pure() = TargetedCommand<Unit, T>()
 
-class TargetedPureCommand<T: Any>: BaseCommand<T>() {
-
-    fun fire(target: T) = internalFire(target)
-
-    fun handle(target: T, action: () -> Unit) = internalHandle {
-        if (target == it) {
-            action()
-            true
-        } else {
-            false
-        }
     }
 
-    operator fun invoke(target: T) = fire(target)
+}
+
+class CommandForResult<T, R>(private val defaultValue: R) {
+
+    private var resolver: ((T) -> R)? = null
+
+    fun fire(value: T): R {
+        val resolve = this.resolver ?: { defaultValue }
+        return resolve(value)
+    }
+
+    fun handle(action: (T) -> R) {
+        if (resolver != null) {
+            Timber.e("Already have command resolver. It will be overriden.")
+        }
+        resolver = action
+    }
+
+    companion object {
+
+        fun <R> pure(defaultValue: R) = CommandForResult<Unit, R>(defaultValue)
+
+    }
 
 }
+
+operator fun <T> Command<T>.invoke(event: T) = fire(event)
+operator fun Command<Unit>.invoke() = fire(Unit)
+
+operator fun <E, T: Any> TargetedCommand<E, T>.invoke(event: E, target: T) = fire(event, target)
+operator fun <T: Any> TargetedCommand<Unit, T>.invoke(target: T) = fire(Unit, target)
+
+operator fun <T, R> CommandForResult<T, R>.invoke(value: T) = fire(value)
+operator fun <R> CommandForResult<Unit, R>.invoke() = fire(Unit)

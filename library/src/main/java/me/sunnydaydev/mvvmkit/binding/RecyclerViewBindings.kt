@@ -12,7 +12,6 @@ import com.github.nitrico.lastadapter.TypeHandler
 import me.sunnydaydev.mvvmkit.R
 import me.sunnydaydev.mvvmkit.binding.internal.BindableCore
 import me.sunnydaydev.mvvmkit.observable.Command
-import me.sunnydaydev.mvvmkit.observable.PureCommand
 import java.lang.ref.WeakReference
 import kotlin.reflect.KClass
 
@@ -37,7 +36,7 @@ object RecyclerViewBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter("resetAdapterCommand")
-    fun bindResetAdapter(view: RecyclerView, command: PureCommand) {
+    fun bindResetAdapter(view: RecyclerView, command: Command<Unit>) {
         command.handle { view.adapter = view.adapter }
     }
 
