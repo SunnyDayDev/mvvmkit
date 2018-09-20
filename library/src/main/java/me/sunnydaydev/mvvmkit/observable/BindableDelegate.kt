@@ -2,6 +2,7 @@ package me.sunnydaydev.mvvmkit.observable
 
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
+import timber.log.Timber
 
 /**
  * Created by sunny on 28.04.2018.
@@ -10,7 +11,7 @@ import kotlin.reflect.KProperty
 
 internal class BindableDelegate<in R: NotifiableObservable, T: Any?> (
         private var value: T,
-        private var id: Int?,
+        private val id: Int?,
         private val onChange: ((T) -> Unit)? = null
 ): ReadWriteProperty<R, T> {
 
@@ -21,6 +22,7 @@ internal class BindableDelegate<in R: NotifiableObservable, T: Any?> (
             val clazz = try {
                 Class.forName("androidx.databinding.library.baseAdapters.BR")
             } catch (e: Throwable) {
+                Timber.e(e)
                 null
             } ?: return@lazy emptyMap()
 
@@ -30,7 +32,7 @@ internal class BindableDelegate<in R: NotifiableObservable, T: Any?> (
 
     }
 
-    private var checkedId: Int? = null
+    private var cachedCheckedId: Int? = null
 
     override operator fun getValue(thisRef: R, property: KProperty<*>): T = this.value
 
@@ -38,20 +40,29 @@ internal class BindableDelegate<in R: NotifiableObservable, T: Any?> (
 
         this.value = value
 
-        id = id ?: checkAndGetId(property)
+        val checkedId = getBindablePropertyId(property)
 
-        thisRef.notifyPropertyChanged(id!!)
+        thisRef.notifyPropertyChanged(checkedId)
 
         onChange?.invoke(value)
 
     }
 
-    private fun checkAndGetId(property: KProperty<*>): Int {
+    private fun getBindablePropertyId(property: KProperty<*>): Int {
 
-        return checkedId ?: id
-                ?: dataBindingFields[property.name]?.also { checkedId = it }
-                ?: dataBindingFields[property.fallbackName]?.also { checkedId = it }
-                ?: throw IllegalStateException("Unknown bindable property.")
+        val cached = cachedCheckedId
+
+        return if (cached != null) cached
+        else {
+
+            val checkedId = id
+                    ?: dataBindingFields[property.name]
+                    ?: dataBindingFields[property.fallbackName]
+                    ?: throw IllegalStateException("Unknown bindable property: $property")
+
+            checkedId.also { cachedCheckedId = it }
+
+        }
 
     }
 
