@@ -5,15 +5,27 @@ package me.sunnydaydev.mvvmkit.component
  * mail: mail@sunnydaydev.me
  */
  
-sealed class UIInteractorError: Error() {
+sealed class UIInteractorError: Error {
+
+    constructor(): super()
+
+    constructor(message: String): super(message)
 
     class ViewNotPresent: UIInteractorError()
+
+    class UnsuitableView(reason: String): UIInteractorError(reason)
 
     class Cancelled: UIInteractorError()
 
     companion object {
 
         fun viewNotPresent(): Nothing = throw ViewNotPresent()
+
+        fun canceled(): Nothing = throw Cancelled()
+
+        fun unsuitableView(
+                reason: String = "View is not suitable for the required action."
+        ): Nothing = throw UnsuitableView(reason)
 
     }
 
