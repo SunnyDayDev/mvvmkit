@@ -4,15 +4,13 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import android.webkit.WebChromeClient
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import androidx.databinding.BindingAdapter
 import androidx.databinding.adapters.ListenerUtil
 import me.sunnydaydev.mvvmkit.R
 import me.sunnydaydev.mvvmkit.observable.Command
 import me.sunnydaydev.mvvmkit.observable.CommandForResult
+import timber.log.Timber
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 30.07.2018.
@@ -83,11 +81,7 @@ object WebViewBindings: Bindings() {
             val needClear = clear == true
 
             if (needClear) {
-
-                view.clearViewCompat()
-                view.clearCache(false)
-                view.clearHistory()
-
+                view.reset()
             }
 
             action(view)
@@ -147,13 +141,7 @@ object WebViewBindings: Bindings() {
 
             }
 
-            else -> {
-
-                view.clearViewCompat()
-                view.clearCache(false)
-                view.clearHistory()
-
-            }
+            else -> view.reset()
 
         }
 
@@ -190,11 +178,10 @@ object WebViewBindings: Bindings() {
     internal fun bindGoBackCommand(view: WebView,
                                    command: CommandForResult<Unit, Boolean>) {
 
-        command.handle { _ ->
+        command.handle {
 
-            if (!view.canGoBack() || view.copyBackForwardList().let {
-                        it.currentIndex == 1 && it.getItemAtIndex(0).originalUrl == "about:blank"
-                    }) return@handle false
+            if (!view.canGoBack() || view.copyBackForwardList().backStackIsBlank())
+                return@handle false
 
             view.goBack()
 
@@ -204,6 +191,11 @@ object WebViewBindings: Bindings() {
 
     }
 
+    private fun WebBackForwardList.backStackIsBlank(): Boolean =
+            (0 until currentIndex)
+                    .map { getItemAtIndex(it).originalUrl }
+                    .all { it ==  "about:blank" }
+
     private fun WebView.clearViewCompat() =
             if (Build.VERSION.SDK_INT < 18) {
                 @Suppress("DEPRECATION")
@@ -211,6 +203,21 @@ object WebViewBindings: Bindings() {
             } else {
                 loadUrl("about:blank")
             }
+
+    private fun WebView.goBackToRoot() {
+
+        while (canGoBack()) {
+            goBack()
+        }
+
+    }
+
+    private fun WebView.reset() {
+        goBackToRoot()
+        clearViewCompat()
+        clearCache(false)
+        clearHistory()
+    }
 
     interface WebViewSettingsConfigurator {
 

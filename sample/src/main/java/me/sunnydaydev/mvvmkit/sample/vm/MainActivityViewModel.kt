@@ -63,7 +63,7 @@ class MainActivityViewModel(
 
     @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     fun onCreateView() {
-        webviewUrl(WebViewUrl("https://sunnydaydev.me"))
+        webviewUrl(WebViewUrl("https://google.com"))
     }
 
     fun addOrange() {
