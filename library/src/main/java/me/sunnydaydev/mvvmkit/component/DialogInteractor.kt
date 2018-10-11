@@ -360,7 +360,7 @@ open class DefaultDialogInteractor constructor(
             dialog.cancel()
         }
 
-        builder.setPositiveButton(config.defaultNegativeText(activity), null)
+        builder.setPositiveButton(config.defaultPositiveText(activity), null)
 
         builder.setOnCancelListener { subject.cancelled() }
 
