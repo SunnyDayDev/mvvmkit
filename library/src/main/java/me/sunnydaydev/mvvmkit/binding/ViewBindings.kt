@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import me.sunnydaydev.mvvmkit.observable.Command
 import me.sunnydaydev.mvvmkit.observable.TargetedCommand
+import me.sunnydaydev.mvvmkit.R
 
 /**
  * Created by sunny on 30.05.2018.
@@ -255,6 +256,26 @@ object ViewBindings: Bindings() {
 
     }
 
+    @JvmStatic
+    @BindingAdapter("onLayoutSizeChanged")
+    fun bindOnLayoutChanged(view: View, callback: OnLayoutSizeChangedCallback?) {
+
+        val previous: OnLayoutChangedCallbackListener? =
+                view.getListener(R.id.binding_layout_size_changed_listener)
+
+        when {
+            previous?.callback === callback -> return
+            previous != null -> view.removeOnLayoutChangeListener(previous)
+        }
+
+        if (callback == null) return
+
+        val new = OnLayoutChangedCallbackListener(callback)
+        view.trackListener(R.id.binding_layout_size_changed_listener, new)
+        view.addOnLayoutChangeListener(new)
+
+    }
+
     // region Classes, interfaces, etc.
 
     interface OnClickListener {
@@ -263,6 +284,23 @@ object ViewBindings: Bindings() {
 
     interface OnTouchListener {
         fun onTouch(event: MotionEvent): Boolean
+    }
+
+
+    interface OnLayoutSizeChangedCallback {
+        fun onLayoutSizeChanged(width: Int, height: Int)
+    }
+
+    private class OnLayoutChangedCallbackListener(
+            val callback: OnLayoutSizeChangedCallback
+    ): View.OnLayoutChangeListener {
+
+        override fun onLayoutChange(
+                view: View,
+                p1: Int, p2: Int, p3: Int, p4: Int, p5: Int, p6: Int, p7: Int, p8: Int) {
+            callback.onLayoutSizeChanged(view.width, view.height)
+        }
+
     }
 
     // endregion

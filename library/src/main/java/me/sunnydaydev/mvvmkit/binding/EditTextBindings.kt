@@ -7,6 +7,8 @@ import androidx.databinding.InverseBindingListener
 import androidx.databinding.adapters.ListenerUtil
 import me.sunnydaydev.mvvmkit.R
 import me.sunnydaydev.mvvmkit.view.MVVMEditText
+import me.sunnydaydev.mvvmkit.view.util.OnSelectionChangedListener
+import timber.log.Timber
 import kotlin.math.min
 
 /**
@@ -21,32 +23,50 @@ object EditTextBindings: Bindings() {
             value = ["selection", "selectionAttrChanged"],
             requireAll = false
     )
-    fun bindSelection(view: MVVMEditText,
-                      position: TextSelection?,
-                      inverse: InverseBindingListener?) {
+    fun bindSelection(
+            view: EditText,
+            position: TextSelection?,
+            inverse: InverseBindingListener?
+    ) {
 
-        if (position != null) {
-            val textLenght = view.text?.length ?: 0
-            view.setSelection(min(position.start, textLenght), min(position.end, textLenght))
+        if (view is OnSelectionChangedListener.Owner) {
+
+            if (position != null) {
+                val textLength = view.text?.length ?: 0
+                view.setSelection(min(position.start, textLength), min(position.end, textLength))
+            }
+
+            val currentListener: TextSelectionListener? = ListenerUtil.getListener(
+                    view, R.id.binding_edittext_listener_selection)
+
+            if (currentListener?.inverse == inverse) {
+                return
+            }
+
+            currentListener?.let(view::removeOnSelectionChangedListener)
+            ListenerUtil.trackListener(view, null, R.id.binding_edittext_listener_selection)
+
+            inverse ?: return
+
+            val listener = TextSelectionListener(inverse)
+
+            view.addOnSelectionChangedListener(listener)
+
+            ListenerUtil.trackListener(view, listener, R.id.binding_edittext_listener_selection)
+
+        } else {
+
+            if (inverse != null) {
+                Timber.e("EditText doesn't implement OnSelectionChangedListener.Owner. Inverse binding will be ignored.")
+            }
+
+            if (position != null) {
+
+                view.setSelection(position.start, position.end)
+
+            }
+
         }
-
-        val currentListener: TextSelectionListener? = ListenerUtil.getListener(
-                view, R.id.binding_edittext_listener_selection)
-
-        if (currentListener?.inverse == inverse) {
-            return
-        }
-
-        currentListener?.let(view::removeOnSelectionChangedListener)
-        ListenerUtil.trackListener(view, null, R.id.binding_edittext_listener_selection)
-
-        inverse ?: return
-
-        val listener = TextSelectionListener(inverse)
-
-        view.addOnSelectionChangedListener(listener)
-
-        ListenerUtil.trackListener(view, listener, R.id.binding_edittext_listener_selection)
 
     }
 
@@ -58,7 +78,7 @@ object EditTextBindings: Bindings() {
 
     private class TextSelectionListener(
             val inverse: InverseBindingListener
-    ): MVVMEditText.OnSelectionChangedListener {
+    ): OnSelectionChangedListener {
 
         override fun onSelectionChanged(editText: EditText, start: Int, end: Int) {
             inverse.onChange()

@@ -6,6 +6,7 @@
     <item name="binding_recyclerview_binding_visible_position" type="id"/>
 
     <item name="binding_view_focused" type="id"/>
+    <item name="binding_layout_size_changed_listener" type="id"/>
 
     <item name="binding_imageview_source_core" type="id"/>
 

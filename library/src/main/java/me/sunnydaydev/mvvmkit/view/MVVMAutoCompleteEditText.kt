@@ -2,7 +2,7 @@ package me.sunnydaydev.mvvmkit.view
 
 import android.content.Context
 import android.util.AttributeSet
-import androidx.appcompat.widget.AppCompatEditText
+import android.widget.AutoCompleteTextView
 import me.sunnydaydev.mvvmkit.view.util.OnSelectionChangedListener
 
 /**
@@ -10,7 +10,7 @@ import me.sunnydaydev.mvvmkit.view.util.OnSelectionChangedListener
  * mail: mail@sunnydaydev.me
  */
  
-class MVVMEditText: AppCompatEditText, OnSelectionChangedListener.Owner {
+class MVVMAutoCompleteEditText: AutoCompleteTextView, OnSelectionChangedListener.Owner {
 
     private var initialized = false
     private val selectionListeners = mutableSetOf<OnSelectionChangedListener>()
