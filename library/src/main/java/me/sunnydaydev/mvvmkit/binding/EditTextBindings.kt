@@ -72,7 +72,7 @@ object EditTextBindings: Bindings() {
 
     @JvmStatic
     @InverseBindingAdapter(attribute = "selection")
-    fun bindSelectionInverse(view: MVVMEditText): TextSelection {
+    fun bindSelectionInverse(view: EditText): TextSelection {
         return TextSelection(view.selectionStart, view.selectionEnd)
     }
 
