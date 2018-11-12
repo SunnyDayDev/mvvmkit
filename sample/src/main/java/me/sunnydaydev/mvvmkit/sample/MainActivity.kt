@@ -10,6 +10,7 @@ import me.sunnydaydev.mvvmkit.sample.vm.MainActivityViewModelFactory
 import me.sunnydaydev.mvvmkit.util.setContentBinding
 import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
 import me.sunnydaydev.mvvmkit.viewModel.get
+import androidx.databinding.library.baseAdapters.BR
 
 class MainActivity : MVVMActivity<ActivityMainBinding>() {
 
