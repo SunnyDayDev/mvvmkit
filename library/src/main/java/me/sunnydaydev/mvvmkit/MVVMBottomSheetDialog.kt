@@ -1,6 +1,5 @@
 package me.sunnydaydev.mvvmkit
 
-import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.databinding.ViewDataBinding
@@ -19,9 +18,15 @@ import me.sunnydaydev.mvvmkit.viewModel.MVVMViewModel
 
 abstract class MVVMBottomSheetDialog<Binding: ViewDataBinding>: BottomSheetDialog  {
 
-    constructor(context: Context): super(context)
+    protected val activity: FragmentActivity
 
-    constructor(context: Context, theme: Int): super(context, theme)
+    constructor(activity: FragmentActivity): super(activity) {
+        this.activity = activity
+    }
+
+    constructor(activity: FragmentActivity, theme: Int): super(activity, theme){
+        this.activity = activity
+    }
 
     // region Abstract
 
@@ -32,8 +37,6 @@ abstract class MVVMBottomSheetDialog<Binding: ViewDataBinding>: BottomSheetDialo
     protected abstract val binding: Binding
 
     protected abstract fun getViewModel(provider: ViewModelProvider): MVVMViewModel
-
-    protected val activity get() = ownerActivity as FragmentActivity
 
     // endregion
 
