@@ -64,8 +64,7 @@ abstract class MVVMDialog<Binding: ViewDataBinding>: Dialog  {
 
     }
 
-    inline fun <reified T: ViewDataBinding>setContentBinding(layoutId: Int): T {
-        val activity = ownerActivity ?: error("Must have an owner activity.")
+    protected inline fun <reified T: ViewDataBinding>setContentBinding(layoutId: Int): T {
         val binding: T = DataBindingUtil.inflate(
                 activity.layoutInflater, layoutId, null, false)
         setContentView(binding.root)
