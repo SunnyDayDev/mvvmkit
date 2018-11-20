@@ -1,10 +1,12 @@
 package me.sunnydaydev.mvvmkit.binding
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.webkit.*
+import androidx.annotation.RequiresApi
 import androidx.databinding.BindingAdapter
 import androidx.databinding.adapters.ListenerUtil
 import me.sunnydaydev.mvvmkit.R
@@ -188,6 +190,30 @@ object WebViewBindings: Bindings() {
             return@handle true
 
         }
+
+    }
+
+    @SuppressLint("JavascriptInterface", "AddJavascriptInterface")
+    @JvmStatic
+    @BindingAdapter(value = ["javascriptInterface", "javascriptInterfaceName"])
+    fun bindJavaScriptInterface(webView: WebView, javascriptInterface: Any, name: String) {
+
+        val current = webView.getListener<Pair<Any, String>>(R.id.binding_webview_javascript_interface)
+
+        if (current?.first === javascriptInterface && current.second == name) {
+            return
+        }
+
+        if (current != null) {
+            webView.removeJavascriptInterface(current.second)
+        }
+
+        webView.addJavascriptInterface(javascriptInterface, name)
+        
+        webView.trackListener(
+                R.id.binding_webview_javascript_interface,
+                Pair(javascriptInterface, name)
+        )
 
     }
 
