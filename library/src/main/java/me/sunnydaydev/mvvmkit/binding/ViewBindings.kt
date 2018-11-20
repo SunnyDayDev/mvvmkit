@@ -10,6 +10,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.databinding.adapters.ListenerUtil
 import me.sunnydaydev.mvvmkit.observable.Command
 import me.sunnydaydev.mvvmkit.observable.TargetedCommand
 import me.sunnydaydev.mvvmkit.R
@@ -273,6 +274,23 @@ object ViewBindings: Bindings() {
         val new = OnLayoutChangedCallbackListener(callback)
         view.trackListener(R.id.binding_layout_size_changed_listener, new)
         view.addOnLayoutChangeListener(new)
+
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["onBind", "onEachBind"], requireAll = false)
+    fun bindOnBind(view: View, onBind: Runnable?, onEachBind: Boolean?) {
+
+        if (onBind == null) {
+            ListenerUtil.trackListener(view, null, R.id.binding_view_on_bind)
+            return
+        }
+
+        val current = view.getListener<Runnable>(R.id.binding_view_on_bind)
+
+        if (onEachBind != true && current === onBind) return
+
+        onBind.run()
 
     }
 
