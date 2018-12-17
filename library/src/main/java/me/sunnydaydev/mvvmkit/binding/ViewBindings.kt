@@ -54,7 +54,9 @@ object ViewBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter(value = ["focusCommand", "focusTarget"], requireAll = true)
-    fun <T: Any> bindFocusCommand(view: View, focus: TargetedCommand<Unit, T>, target: T) {
+    fun <T: Any> bindFocusCommand(view: View, focus: TargetedCommand<Unit, T>?, target: T?) {
+        focus ?: return
+        target ?: return
 
         focus.handle(target) {
             view.requestFocus()
@@ -64,7 +66,8 @@ object ViewBindings: Bindings() {
 
     @JvmStatic
     @BindingAdapter(value = ["focusCommand"])
-    fun bindFocusPureCommand(view: View, focus: Command<Unit>) {
+    fun bindFocusPureCommand(view: View, focus: Command<Unit>?) {
+        focus ?: return
         focus.handle { view.requestFocus() }
     }
 
