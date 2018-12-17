@@ -77,7 +77,7 @@ class CommandForResult<T, R>(private val defaultValue: R) {
 
     fun handle(action: (T) -> R) {
         if (resolver != null) {
-            Timber.e("Already have command resolver. It will be overriden.")
+            Timber.d("Already have command resolver. It will be overriden.")
         }
         resolver = action
     }
