@@ -24,20 +24,25 @@ object BindingsUtil {
 
 open class Bindings {
 
-    fun <T: Any> View.getOrTrackListener(@IdRes id: Int, creator: () -> T): T =
-            getListener(id) ?: creator().also { trackListener(id, it) }
+    fun <T: Any> View.getOrSetListener(@IdRes id: Int, creator: () -> T): T =
+            getOrSetListener(id, { true }, creator)
 
-    fun <T: Any> View.getOrTrackListener(@IdRes id: Int,
-                                         checkCurrentFits: (T) -> Boolean,
-                                         creator: () -> T): T =
-            getListener<T>(id)?.takeIf(checkCurrentFits)
-                    ?: creator().also { trackListener(id, it) }
+    fun <T: Any> View.getOrSetListener(@IdRes id: Int,
+                                       checkCurrentFits: (T) -> Boolean,
+                                       creator: () -> T): T =
+            getListener<T>(id)
+                    ?.takeIf(checkCurrentFits)
+                    ?: creator().also { setListener(id, it) }
 
-    fun <T: Any> View.trackListener(@IdRes id: Int, listener: T): T? {
+    fun <T: Any> View.setListenerAndGetPrevious(@IdRes id: Int, listener: T?): T? {
         val current = getListener<T>(id)
         if (current === listener) return null
         ListenerUtil.trackListener(this, listener, id)
         return current
+    }
+
+    fun <T: Any> View.setListener(@IdRes id: Int, listener: T?) {
+        ListenerUtil.trackListener(this, listener, id)
     }
 
     fun <T: Any> View.getListener(@IdRes id: Int): T? =

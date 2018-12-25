@@ -265,7 +265,7 @@ object RecyclerViewBindings: Bindings() {
     }
 
     private val RecyclerView.adapterCore get() =
-        getOrTrackListener(R.id.binding_recyclerview_adapter_core) { AdapterCore(this) }
+        getOrSetListener(R.id.binding_recyclerview_adapter_core) { AdapterCore(this) }
 
     // region Classes
 

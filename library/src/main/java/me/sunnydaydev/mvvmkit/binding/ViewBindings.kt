@@ -34,7 +34,7 @@ object ViewBindings: Bindings() {
     @BindingAdapter(value = ["focused", "focusedAttrChanged"], requireAll = false)
     fun bindFocused(view: View, focused: Boolean, inverse: InverseBindingListener?) {
 
-        // TODO: ListenerUtil.trackListener(...)
+        // TODO: ListenerUtil.setListenerAndGetPrevious(...)
 
         view.onFocusChangeListener = null
 
@@ -275,7 +275,7 @@ object ViewBindings: Bindings() {
         if (callback == null) return
 
         val new = OnLayoutChangedCallbackListener(callback)
-        view.trackListener(R.id.binding_layout_size_changed_listener, new)
+        view.setListenerAndGetPrevious(R.id.binding_layout_size_changed_listener, new)
         view.addOnLayoutChangeListener(new)
 
     }

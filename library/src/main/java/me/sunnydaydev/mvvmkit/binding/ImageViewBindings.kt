@@ -86,7 +86,7 @@ object ImageViewBindings: Bindings() {
     fun bindSrc(view: ImageView, @DrawableRes id: Int) = view.sourceCore.setSrc(id)
 
     private val ImageView.sourceCore get() =
-        getOrTrackListener(R.id.binding_imageview_source_core) { SourceCore(this) }
+        getOrSetListener(R.id.binding_imageview_source_core) { SourceCore(this) }
 
     private class SourceCore(private val view: ImageView): BindableCore() {
 

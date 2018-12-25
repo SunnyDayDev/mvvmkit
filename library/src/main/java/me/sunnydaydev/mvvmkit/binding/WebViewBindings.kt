@@ -6,13 +6,11 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.webkit.*
-import androidx.annotation.RequiresApi
 import androidx.databinding.BindingAdapter
 import androidx.databinding.adapters.ListenerUtil
 import me.sunnydaydev.mvvmkit.R
 import me.sunnydaydev.mvvmkit.observable.Command
 import me.sunnydaydev.mvvmkit.observable.CommandForResult
-import timber.log.Timber
 
 /**
  * Created by Aleksandr Tcikin (SunnyDay.Dev) on 30.07.2018.
@@ -210,7 +208,7 @@ object WebViewBindings: Bindings() {
 
         webView.addJavascriptInterface(javascriptInterface, name)
         
-        webView.trackListener(
+        webView.setListenerAndGetPrevious(
                 R.id.binding_webview_javascript_interface,
                 Pair(javascriptInterface, name)
         )
