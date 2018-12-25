@@ -11,11 +11,14 @@ import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.request.RequestOptions
 import me.sunnydaydev.mvvmkit.R
 import me.sunnydaydev.mvvmkit.binding.internal.BindableCore
 import me.sunnydaydev.mvvmkit.util.findActivity
+import timber.log.Timber
+import java.lang.IllegalArgumentException
 import java.net.URL
 
 
@@ -200,24 +203,39 @@ object ImageViewBindings: Bindings() {
         }
 
         private fun applyUri(uriConfig: UriConfig) {
+            try {
 
-            val glide = Glide.with(view)
-            glide.clear(view)
+                val glide = Glide.with(view)
 
-            val uri = uriConfig.uri ?: return Unit.also {
-                view.setImageDrawable(null)
+                glide.clear(view)
+
+                val uri = uriConfig.uri ?: return Unit.also {
+                    view.setImageDrawable(null)
+                }
+
+                val options = (uriConfig.options ?: RequestOptions())
+                        .applyIf(uriConfig.centerCrop) { centerCrop() }
+                        .applyIf(uriConfig.centerInside) { centerInside() }
+                        .applyIf(uriConfig.circleCrop) { circleCrop() }
+                        .applyIf(uriConfig.fitCenter) { fitCenter() }
+                        .applyIf(uriConfig.transformation) { transform(it) }
+
+                glide.load(uri)
+                        .apply(options)
+                        .into(view)
+
+            } catch (e: Throwable) {
+
+                if (e is IllegalArgumentException &&
+                        e.stackTrace.first().methodName == "assertNotDestroyed") {
+                    // Can't load to destroyed activity
+                    // but it's not matter because it will rebindined on new onCreate.
+                    // Do nothing.
+                } else {
+                    Timber.e(e)
+                }
+
             }
-
-            val options = (uriConfig.options ?: RequestOptions())
-                    .applyIf(uriConfig.centerCrop) { centerCrop() }
-                    .applyIf(uriConfig.centerInside) { centerInside() }
-                    .applyIf(uriConfig.circleCrop) { circleCrop() }
-                    .applyIf(uriConfig.fitCenter) { fitCenter() }
-                    .applyIf(uriConfig.transformation) { transform(it) }
-
-            glide.load(uri)
-                    .apply(options)
-                    .into(view)
 
         }
 
