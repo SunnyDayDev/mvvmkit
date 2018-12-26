@@ -379,9 +379,9 @@ class MVVMDiffArrayList<T>(
 
             fun <T> default(): Differ<T> = object : Differ<T> {
 
-                override fun areSame(old: T, new: T) = old === new
+                override fun areSame(old: T, new: T) = old == new
 
-                override fun areSameContent(old: T, new: T) = old == new
+                override fun areSameContent(old: T, new: T) = true
 
             }
 
