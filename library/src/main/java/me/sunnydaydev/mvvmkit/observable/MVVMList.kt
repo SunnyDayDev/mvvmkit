@@ -352,22 +352,18 @@ class MVVMDiffArrayList<T>(
     ): ListUpdateCallback {
 
         override fun onChanged(position: Int, count: Int, payload: Any?) {
-            Timber.d("onChanged($position, $count)")
             listeners.notifyChanged(list, position, count)
         }
 
         override fun onMoved(fromPosition: Int, toPosition: Int) {
-            Timber.d("onMoved($fromPosition, $toPosition)")
             listeners.notifyMoved(list, fromPosition, toPosition, 1)
         }
 
         override fun onInserted(position: Int, count: Int) {
-            Timber.d("onInserted($position, $count)")
             listeners.notifyInserted(list, position, count)
         }
 
         override fun onRemoved(position: Int, count: Int) {
-            Timber.d("onRemoved($position, $count)")
             listeners.notifyRemoved(list, position, count)
         }
 
