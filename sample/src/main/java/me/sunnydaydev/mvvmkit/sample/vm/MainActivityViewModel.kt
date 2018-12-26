@@ -54,7 +54,7 @@ class MainActivityViewModel(
 
     private val black = blackFactory.create()
     private val oranges: MVVMList<MVVMViewModel> = MVVMArrayList()
-    private val greens: MVVMList<MVVMViewModel> = MVVMArrayList()
+    private val greens: MVVMList<MVVMViewModel> = MVVMDiffArrayList()
     private val blues: MVVMList<MVVMViewModel> = MVVMArrayList()
 
     init {
@@ -91,10 +91,13 @@ class MainActivityViewModel(
     }
 
     fun setGreen() {
-        val items = (1..3).map { greenFactory.create() }
-        val startIndex = min(1, greens.size)
-        val count = min(2, greens.size - startIndex)
-        greens.setAll(items, startIndex, count)
+        val startIndex = min(2, greens.size)
+        val items = listOfNotNull(
+                greenFactory.create(),
+                greens.getOrNull(startIndex),
+                greenFactory.create()
+        )
+        greens.setAll(items, startIndex, 1)
     }
 
     fun onTransition() {

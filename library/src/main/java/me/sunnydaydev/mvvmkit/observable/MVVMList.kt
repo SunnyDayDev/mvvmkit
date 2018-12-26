@@ -2,6 +2,9 @@ package me.sunnydaydev.mvvmkit.observable
 
 import androidx.databinding.ListChangeRegistry
 import androidx.databinding.ObservableList
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListUpdateCallback
+import timber.log.Timber
 
 /**
  * Created by sunny on 31.05.2018.
@@ -221,6 +224,173 @@ open class MVVMArrayList<T>(): ArrayList<T>(), MVVMList<T> {
         val result = action()
         notificationsEnabled = true
         return result
+    }
+
+}
+
+class MVVMDiffArrayList<T>(
+        private val detectMoves: Boolean = true,
+        private val differ: Differ<T> = Differ.default()
+): ArrayList<T>(), MVVMList<T> {
+
+    @Transient
+    private val listeners: ListChangeRegistry = ListChangeRegistry()
+    private val diffUpdateCallback = DiffListUpdateCallback(listeners, this)
+
+    private var inDiff = false
+
+    constructor(vararg items: T): this() {
+        addAll(items)
+    }
+
+    override fun addOnListChangedCallback(listener: ObservableList.OnListChangedCallback<out ObservableList<T>>) {
+        listeners.add(listener)
+    }
+
+    override fun removeOnListChangedCallback(listener: ObservableList.OnListChangedCallback<out ObservableList<T>>) {
+        listeners.remove(listener)
+    }
+
+    override fun add(element: T): Boolean = withDiff {
+        super.add(element)
+    }
+
+    override fun add(index: Int, element: T) = withDiff {
+        super.add(index, element)
+    }
+
+    override fun addAll(elements: Collection<T>): Boolean = withDiff {
+        super.addAll(elements)
+    }
+
+    override fun addAll(index: Int, elements: Collection<T>): Boolean = withDiff {
+        super.addAll(index, elements)
+    }
+
+    override fun clear() = withDiff {
+        super.clear()
+    }
+
+    override fun remove(element: T): Boolean = withDiff {
+        super.remove(element)
+    }
+
+    override fun removeAt(index: Int): T = withDiff {
+        super.removeAt(index)
+    }
+
+    override fun set(index: Int, element: T): T = withDiff {
+        super.set(index, element)
+    }
+
+    override fun removeRange(fromIndex: Int, toIndex: Int) = withDiff {
+        super.removeRange(fromIndex, toIndex)
+    }
+
+    override fun move(fromIndex: Int, toIndex: Int) = withDiff {
+        add(toIndex, removeAt(fromIndex))
+    }
+
+    override fun swap(fromIndex: Int, toIndex: Int) = withDiff {
+        val buff = set(toIndex, get(fromIndex))
+        set(fromIndex, buff)
+        Unit
+    }
+
+    override fun setAll(items: Collection<T>) = setAll(items, 0, size)
+
+    override fun setAll(items: Collection<T>, startIndex: Int, count: Int) = withDiff {
+        removeRange(startIndex, startIndex + count)
+        addAll(startIndex, items)
+        Unit
+    }
+
+    @Synchronized
+    fun <T> withDiff(action: () -> T): T {
+        val rootInDiff = !inDiff
+        if (rootInDiff) {
+            inDiff = true
+        }
+        val prev = ArrayList(this)
+        val result = action()
+        if (rootInDiff) {
+            compareDiffAndNotify(prev, this)
+            inDiff = false
+        }
+        return result
+    }
+
+    private fun compareDiffAndNotify(prev: List<T>, current: List<T>) {
+
+        val result = DiffUtil.calculateDiff(DiffCallback(prev, current, differ), detectMoves)
+
+        result.dispatchUpdatesTo(diffUpdateCallback)
+
+    }
+
+    private class DiffCallback<T>(
+            private val prev: List<T>,
+            private val current: List<T>,
+            private val differ: Differ<T>
+    ) : DiffUtil.Callback() {
+
+        override fun getOldListSize(): Int = prev.size
+
+        override fun getNewListSize(): Int = current.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
+                differ.areSame(prev[oldItemPosition], current[newItemPosition])
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
+                differ.areSameContent(prev[oldItemPosition], current[newItemPosition])
+
+    }
+
+    private class DiffListUpdateCallback(
+            private val listeners: ListChangeRegistry,
+            private val list: ObservableList<*>
+    ): ListUpdateCallback {
+
+        override fun onChanged(position: Int, count: Int, payload: Any?) {
+            Timber.d("onChanged($position, $count)")
+            listeners.notifyChanged(list, position, count)
+        }
+
+        override fun onMoved(fromPosition: Int, toPosition: Int) {
+            Timber.d("onMoved($fromPosition, $toPosition)")
+            listeners.notifyMoved(list, fromPosition, toPosition, 1)
+        }
+
+        override fun onInserted(position: Int, count: Int) {
+            Timber.d("onInserted($position, $count)")
+            listeners.notifyInserted(list, position, count)
+        }
+
+        override fun onRemoved(position: Int, count: Int) {
+            Timber.d("onRemoved($position, $count)")
+            listeners.notifyRemoved(list, position, count)
+        }
+
+    }
+
+    interface Differ<T> {
+
+        fun areSame(old: T, new: T): Boolean
+
+        fun areSameContent(old: T, new: T): Boolean
+
+        companion object {
+
+            fun <T> default(): Differ<T> = object : Differ<T> {
+
+                override fun areSame(old: T, new: T) = old === new
+
+                override fun areSameContent(old: T, new: T) = old == new
+
+            }
+
+        }
+
     }
 
 }
