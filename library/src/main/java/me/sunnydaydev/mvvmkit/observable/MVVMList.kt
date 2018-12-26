@@ -4,7 +4,6 @@ import androidx.databinding.ListChangeRegistry
 import androidx.databinding.ObservableList
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
-import timber.log.Timber
 
 /**
  * Created by sunny on 31.05.2018.
